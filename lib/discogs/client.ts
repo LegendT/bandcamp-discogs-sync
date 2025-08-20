@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
+import { logger } from '@/lib/utils/logger';
 
 const DISCOGS_BASE_URL = 'https://api.discogs.com';
 
@@ -9,7 +10,7 @@ export class DiscogsClient {
   constructor() {
     this.token = process.env.DISCOGS_USER_TOKEN || '';
     if (!this.token) {
-      console.warn('DISCOGS_USER_TOKEN not set in environment');
+      logger.warn('DISCOGS_USER_TOKEN not set in environment');
     }
     
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
@@ -32,7 +33,7 @@ export class DiscogsClient {
         message: 'Connected to Discogs API' 
       };
     } catch (error) {
-      console.error('Discogs connection failed:', error);
+      logger.error('Discogs connection failed:', error);
       const errorMessage = axios.isAxiosError(error) 
         ? error.response?.data?.message || error.message
         : 'Connection failed';

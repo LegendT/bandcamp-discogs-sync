@@ -37,7 +37,8 @@ Sync your Bandcamp purchases to your Discogs collection.
 
 ## Testing the Setup
 
-Visit http://localhost:3000/test-setup after starting the dev server to verify the Discogs API connection.
+Visit http://localhost:3000/(dev)/test-setup after starting the dev server to verify the Discogs API connection.
+Note: Development routes are only available when NODE_ENV is not 'production'.
 
 ## Tech Stack
 
