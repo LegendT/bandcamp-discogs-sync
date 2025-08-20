@@ -1,10 +1,10 @@
-import axios from 'axios';
+import axios, { AxiosInstance, AxiosError } from 'axios';
 
 const DISCOGS_BASE_URL = 'https://api.discogs.com';
 
 export class DiscogsClient {
   private token: string;
-  private client;
+  private client: AxiosInstance;
 
   constructor() {
     this.token = process.env.DISCOGS_USER_TOKEN || '';
@@ -12,11 +12,12 @@ export class DiscogsClient {
       console.warn('DISCOGS_USER_TOKEN not set in environment');
     }
     
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     this.client = axios.create({
       baseURL: DISCOGS_BASE_URL,
       headers: {
         'Authorization': `Discogs token=${this.token}`,
-        'User-Agent': 'BCDCSync/1.0 +http://localhost:3000'
+        'User-Agent': `BCDCSync/1.0 +${appUrl}`
       }
     });
   }
@@ -32,9 +33,12 @@ export class DiscogsClient {
       };
     } catch (error) {
       console.error('Discogs connection failed:', error);
+      const errorMessage = axios.isAxiosError(error) 
+        ? error.response?.data?.message || error.message
+        : 'Connection failed';
       return { 
         success: false, 
-        error: error.response?.data?.message || 'Connection failed' 
+        error: errorMessage
       };
     }
   }
