@@ -25,22 +25,24 @@ npm run start        # Start production server
 ## Architecture Overview
 
 **Tech Stack:**
-- Next.js 14+ (App Router)
+- Next.js 15 (App Router)
 - TypeScript (pragmatic usage, `any` warnings OK during MVP)
 - Tailwind CSS (utility-first styling)
 - Supabase (user data, MVP uses free tier)
 - Playwright (Bandcamp data extraction)
-- Discogs REST API (OAuth1)
+- Discogs REST API (personal token for MVP, OAuth1 later)
 
 **Project Structure:**
 ```
 app/                 # Next.js App Router pages
+  (dev)/            # Development-only routes
   api/              # API routes
   components/       # React components
 lib/                # Business logic
   bandcamp/         # CSV parsing, data extraction
   discogs/          # API client, collection management
   matching/         # Album matching algorithm
+  utils/            # Utility functions (logger, etc.)
 types/              # TypeScript type definitions
 ```
 
@@ -66,9 +68,10 @@ npm test            # Run tests (when available)
 
 **Key Principles:**
 1. Ship working code over perfect code
-2. Use `console.warn` for debugging (remove before deploy)
+2. Use logger utility instead of direct console (logger.warn, logger.error)
 3. TypeScript `any` is OK during prototyping
 4. Fix ESLint errors before deploy, not before commit
+5. Development routes in `(dev)` folder are automatically blocked in production
 
 ## Current Sprint Status
 

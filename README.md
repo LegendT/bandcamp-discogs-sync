@@ -26,9 +26,14 @@ Sync your Bandcamp purchases to your Discogs collection.
 ## Project Structure
 
 - `app/` - Next.js app router pages and components
-- `lib/` - Business logic (Discogs API, Bandcamp parsing, matching)
+  - `(dev)/` - Development-only routes (protected in production)
+- `lib/` - Business logic
+  - `discogs/` - Discogs API client
+  - `utils/` - Utility functions (logger, etc.)
 - `types/` - TypeScript type definitions
 - `.env.local` - Local environment variables (create from .env.example)
+- `eslint.config.mjs` - ESLint flat configuration
+- `.nvmrc` - Node.js version specification (18.20.0)
 
 ## Git Workflow
 
