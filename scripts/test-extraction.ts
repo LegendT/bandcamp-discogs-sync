@@ -1,4 +1,4 @@
-import { parseBandcampCSV } from '@/lib/bandcamp/parser';
+import { parseBandcampCSVString } from '@/lib/bandcamp/parser';
 import { getDiscogsClient } from '@/lib/discogs/client-singleton';
 import { DiscogsSearchQuery } from '@/types/matching';
 import { logger } from '@/lib/utils/logger';
@@ -10,14 +10,13 @@ async function testDataExtraction() {
   
   // Load test CSV
   const csvPath = path.join(process.cwd(), 'test-data', 'bandcamp-test.csv');
-  const csvBuffer = fs.readFileSync(csvPath);
-  const csvFile = new File([csvBuffer], 'bandcamp-test.csv', { type: 'text/csv' });
+  const csvContent = fs.readFileSync(csvPath, 'utf-8');
   
   // Parse CSV
   logger.info('=== CSV Parsing ===');
   let parseResult;
   try {
-    parseResult = await parseBandcampCSV(csvFile, (percent) => {
+    parseResult = await parseBandcampCSVString(csvContent, 'bandcamp-test.csv', (percent) => {
       process.stdout.write(`\rParsing progress: ${percent}%`);
     });
     process.stdout.write('\n\n');

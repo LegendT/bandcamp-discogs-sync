@@ -1,5 +1,5 @@
 import { describe, test, expect } from '@jest/globals';
-import { parseBandcampCSV } from '@/lib/bandcamp/parser';
+import { parseBandcampCSVString } from '@/lib/bandcamp/parser';
 import { getDiscogsClient } from '@/lib/discogs/client-singleton';
 import { DiscogsSearchQuery } from '@/types/matching';
 import * as fs from 'fs';
@@ -15,11 +15,10 @@ describe('Data Extraction Pipeline', () => {
 
     // Load test CSV
     const csvPath = path.join(process.cwd(), 'test-data', 'bandcamp-test.csv');
-    const csvBuffer = fs.readFileSync(csvPath);
-    const csvFile = new File([csvBuffer], 'bandcamp-test.csv', { type: 'text/csv' });
+    const csvContent = fs.readFileSync(csvPath, 'utf-8');
     
     // Parse CSV
-    const parseResult = await parseBandcampCSV(csvFile);
+    const parseResult = await parseBandcampCSVString(csvContent, 'bandcamp-test.csv');
     expect(parseResult).toBeDefined();
     expect(parseResult.purchases).toBeDefined();
     expect(parseResult.purchases.length).toBeGreaterThan(0);

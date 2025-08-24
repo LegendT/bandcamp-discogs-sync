@@ -17,6 +17,31 @@ const BandcampCSVRowSchema = z.object({
 });
 
 /**
+ * Parse Bandcamp CSV export file from string content
+ * @param content - The CSV content as string
+ * @param filename - Optional filename for validation
+ * @param onProgress - Optional progress callback (0-100)
+ * @returns Array of parsed and normalized Bandcamp purchases
+ */
+export async function parseBandcampCSVString(
+  content: string,
+  filename?: string,
+  onProgress?: (percent: number) => void
+): Promise<ParseResult> {
+  // Validate size
+  const size = Buffer.byteLength(content);
+  if (size > MAX_FILE_SIZE) {
+    throw new Error(`File too large. Maximum size is ${MAX_FILE_SIZE / 1024 / 1024}MB`);
+  }
+
+  if (filename && !filename.toLowerCase().endsWith('.csv')) {
+    throw new Error('Invalid file type. Please provide a CSV file.');
+  }
+
+  return parseBandcampContent(content, size, onProgress);
+}
+
+/**
  * Parse Bandcamp CSV export file
  * @param file - The CSV file to parse
  * @param onProgress - Optional progress callback (0-100)
@@ -35,6 +60,19 @@ export async function parseBandcampCSV(
     throw new Error('Invalid file type. Please upload a CSV file.');
   }
 
+  // Read file content
+  const content = await file.text();
+  return parseBandcampContent(content, file.size, onProgress);
+}
+
+/**
+ * Internal function to parse CSV content
+ */
+function parseBandcampContent(
+  content: string,
+  totalSize: number,
+  onProgress?: (percent: number) => void
+): Promise<ParseResult> {
   return new Promise((resolve, reject) => {
     const purchases: BandcampPurchase[] = [];
     const seenUrls = new Set<string>(); // Track duplicates
@@ -47,7 +85,7 @@ export async function parseBandcampCSV(
     let earliestDate: Date | null = null;
     let latestDate: Date | null = null;
 
-    Papa.parse<BandcampCSVRow>(file, {
+    Papa.parse<BandcampCSVRow>(content, {
       header: true,
       skipEmptyLines: true,
       delimiter: '', // Auto-detect delimiter
@@ -75,6 +113,11 @@ export async function parseBandcampCSV(
           logger.info(`Parsed ${purchases.length} purchases (${skippedRows} rows skipped, ${duplicateCount} duplicates removed)`);
           if (errors.length > 0) {
             logger.warn(`Parse errors: ${errors.length} total, showing first 5:`, errors.slice(0, 5));
+          }
+          
+          // Final progress update
+          if (onProgress) {
+            onProgress(100);
           }
           
           resolve(result);
@@ -129,12 +172,13 @@ export async function parseBandcampCSV(
             latestDate = purchaseDate;
           }
           
-          // Update progress with throttling
-          if (onProgress && row.meta?.cursor) {
-            const percent = Math.round((row.meta.cursor / file.size) * 100);
-            if (percent - lastProgress >= 5) { // Only update every 5%
-              onProgress(percent);
-              lastProgress = percent;
+          // Update progress based on processed rows (estimate)
+          if (onProgress && rowCount % 5 === 0) {
+            // Estimate progress (can't know total rows during streaming)
+            const estimatedPercent = Math.min(90, rowCount); // Cap at 90% during parsing
+            if (estimatedPercent - lastProgress >= 5) {
+              onProgress(estimatedPercent);
+              lastProgress = estimatedPercent;
             }
           }
         } catch (error) {
@@ -149,16 +193,33 @@ export async function parseBandcampCSV(
 }
 
 /**
+ * Sanitize CSV field to prevent injection attacks
+ */
+function sanitizeCSVField(value: string): string {
+  if (!value || typeof value !== 'string') return '';
+  
+  // Prevent CSV injection by escaping formula triggers
+  const trimmed = value.trim();
+  if (/^[=+\-@\t\r]/.test(trimmed)) {
+    // Prefix with single quote to prevent formula execution
+    return `'${trimmed}`;
+  }
+  return trimmed;
+}
+
+/**
  * Normalize artist name for better matching
  */
 function normalizeArtistName(artist: string): string {
   if (!artist || typeof artist !== 'string') return '';
   
-  return artist
-    .trim()
+  // First sanitize for CSV injection
+  const safe = sanitizeCSVField(artist);
+  
+  return safe
     .replace(/\s+/g, ' ') // Normalize whitespace
     .replace(/^The\s+/i, '') // Remove leading "The"
-    .replace(/[^\w\s\-\.\'&,]/g, '') // Remove special chars except common ones
+    .replace(/[^\w\s\-\.\'&,\u00C0-\u017F]/g, '') // Remove special chars except common ones and accented chars
     .trim();
 }
 
@@ -168,18 +229,20 @@ function normalizeArtistName(artist: string): string {
 function normalizeAlbumTitle(title: string): string {
   if (!title || typeof title !== 'string') return '';
   
+  // First sanitize for CSV injection
+  const safe = sanitizeCSVField(title);
+  
   // Preserve original title but clean it up
-  const cleaned = title
-    .trim()
+  const cleaned = safe
     .replace(/\s+/g, ' ') // Normalize whitespace
     .replace(/[^\w\s\-\.\'&,\(\)\[\]]/g, ''); // Keep only safe chars
   
   // Only remove specific edition markers, not all parenthetical content
   const withoutEditions = cleaned
-    .replace(/\s*\[(Deluxe|Expanded|Remastered|Special|Limited|Bonus|Anniversary|Edition|Explicit)+.*?\]/gi, '')
-    .replace(/\s*\((Deluxe|Expanded|Remastered|Special|Limited|Bonus|Anniversary|Edition|Explicit)+.*?\)/gi, '');
+    .replace(/\s*\[(.*?(Deluxe|Expanded|Remastered|Special|Limited|Bonus|Anniversary|Edition|Explicit).*?)\]/gi, '')
+    .replace(/\s*\((.*?(Deluxe|Expanded|Remastered|Special|Limited|Bonus|Anniversary|Edition|Explicit).*?)\)/gi, '');
   
-  return withoutEditions.trim() || title.trim(); // Fallback to original if normalization fails
+  return withoutEditions.trim() || safe.trim(); // Fallback to sanitized if normalization fails
 }
 
 /**
