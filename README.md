@@ -22,15 +22,21 @@ Sync your Bandcamp purchases to your Discogs collection.
 - `npm run lint` - Run ESLint
 - `npm run format` - Format code with Prettier
 - `npm run type-check` - Check TypeScript types
+- `npm run test` - Run Jest tests
 
 ## Project Structure
 
 - `app/` - Next.js app router pages and components
   - `(dev)/` - Development-only routes (protected in production)
 - `lib/` - Business logic
-  - `discogs/` - Discogs API client
+  - `bandcamp/` - Bandcamp CSV parser
+  - `discogs/` - Discogs API client with rate limiting
+  - `matching/` - Album matching engine (coming in Story 03)
   - `utils/` - Utility functions (logger, etc.)
 - `types/` - TypeScript type definitions
+- `test-data/` - Sample CSV files for testing
+- `scripts/` - Development and testing scripts
+- `tests/` - Jest integration tests
 - `.env.local` - Local environment variables (create from .env.example)
 - `eslint.config.mjs` - ESLint flat configuration
 - `.nvmrc` - Node.js version specification (18.20.0)
@@ -40,10 +46,22 @@ Sync your Bandcamp purchases to your Discogs collection.
 - `main` - Production branch (protected)
 - `develop` - Development branch (default)
 
-## Testing the Setup
+## Testing
 
+### Test Discogs Connection
 Visit http://localhost:3000/(dev)/test-setup after starting the dev server to verify the Discogs API connection.
 Note: Development routes are only available when NODE_ENV is not 'production'.
+
+### Test Data Extraction
+Run the test script to validate CSV parsing and Discogs search:
+```bash
+npx tsx scripts/test-extraction.ts
+```
+
+This will:
+- Parse the sample CSV file in `test-data/`
+- Search Discogs for each item
+- Report match rate and any errors
 
 ## Tech Stack
 
@@ -52,4 +70,16 @@ Note: Development routes are only available when NODE_ENV is not 'production'.
 - Tailwind CSS
 - Axios (HTTP client)
 - Zod (schema validation)
+- Papa Parse (CSV parsing)
+- p-throttle (API rate limiting)
+- Jest & ts-jest (testing)
 - Playwright (for future Bandcamp scraping)
+
+## Current Features (MVP - Story 02 Complete)
+
+- ✅ Bandcamp CSV parsing with duplicate detection
+- ✅ Discogs API integration with rate limiting
+- ✅ Data normalization for better matching
+- ✅ Comprehensive error handling and reporting
+- 🚧 Album matching engine (coming in Story 03)
+- 🚧 Web UI for sync workflow (coming in Story 04)

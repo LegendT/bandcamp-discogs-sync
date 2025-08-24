@@ -16,6 +16,7 @@ npm run dev          # Start Next.js dev server on http://localhost:3000
 npm run lint         # Run ESLint (warnings allowed during MVP)
 npm run format       # Run Prettier to format code
 npm run type-check   # TypeScript type checking
+npm run test         # Run Jest tests
 
 # Production
 npm run build        # Build for production
