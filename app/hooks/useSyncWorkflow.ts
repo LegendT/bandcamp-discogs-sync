@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import type { MatchResult } from '@/types/matching';
+import { SyncError, getUserMessage } from '@/lib/errors';
 
 interface SyncResult {
   results: {
@@ -22,7 +23,6 @@ export function useSyncWorkflow() {
 
     try {
       const payload = { matches: items.slice(0, 20) };
-      console.log('Sync payload:', JSON.stringify(payload, null, 2));
       
       const syncResponse = await fetch('/api/sync', {
         method: 'POST',
@@ -36,13 +36,22 @@ export function useSyncWorkflow() {
       const syncData = await syncResponse.json();
       
       if (!syncResponse.ok) {
-        throw new Error(syncData.error || 'Sync failed');
+        if (syncResponse.status === 429) {
+          throw new SyncError('Too many sync requests. Please wait a moment and try again.', {
+            retryAfter: 60,
+            statusCode: 429
+          });
+        }
+        throw new SyncError(
+          syncData.error || 'Failed to sync items to Discogs. Please check your token and try again.',
+          { statusCode: syncResponse.status }
+        );
       }
 
       setSyncResults(syncData);
       return syncData;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Sync failed';
+      const errorMessage = getUserMessage(err);
       setError(errorMessage);
       throw err;
     } finally {
