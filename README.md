@@ -141,6 +141,24 @@ Current test coverage:
 - **Data**: Supabase (user data), Discogs API
 - **Testing**: Jest, Testing Library
 - **Quality**: ESLint, Prettier, TypeScript strict mode
+- **Libraries**: Axios, Zod, Papa Parse, p-throttle
+
+## ✅ Current Features (MVP - Story 03 Complete)
+
+- ✅ **Bandcamp CSV parsing** with duplicate detection
+- ✅ **Discogs API integration** with rate limiting (2 req/sec)
+- ✅ **Data normalization** for consistent matching
+- ✅ **Album matching engine** with 92% accuracy
+  - Fuzzy string matching (Levenshtein distance)
+  - Token-based similarity for reordered words
+  - Unicode normalization (Björk → bjork)
+  - Roman numeral conversion (III → 3)
+  - Edition extraction (Deluxe, Remaster, etc.)
+  - Format mapping (Vinyl → LP, CD → CD)
+- ✅ **Comprehensive test suite** (58 tests for matching alone)
+- ✅ **Development tools** and test routes
+- 🚧 **Web UI for sync workflow** (coming in Story 04)
+- 🚧 **Sync pipeline implementation** (coming in Story 05)
 
 ## 🚦 Project Status
 
