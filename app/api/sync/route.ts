@@ -3,10 +3,26 @@ import { getDiscogsClient } from '@/lib/discogs/client-singleton';
 import { syncSchema } from '@/lib/validation/schemas-final';
 import { applyMiddleware } from '@/lib/api/middleware';
 import { logger } from '@/lib/utils/logger';
+import { syncRateLimit } from '@/lib/api/rate-limit';
 import type { MatchResult } from '@/types/matching';
 
 async function handler(request: NextRequest) {
   try {
+    // Check rate limit
+    const { success, remaining } = await syncRateLimit.check(request);
+    if (!success) {
+      return NextResponse.json(
+        { error: 'Too many sync requests. Please try again later.' },
+        { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Remaining': remaining.toString(),
+            'Retry-After': '60'
+          }
+        }
+      );
+    }
+
     // Get token from header
     const token = request.headers.get('X-Discogs-Token');
     
@@ -22,12 +38,11 @@ async function handler(request: NextRequest) {
 
     // Parse and validate request
     const body = await request.json();
-    console.log('Sync API received:', JSON.stringify(body, null, 2));
     
     const validated = syncSchema.safeParse(body);
     
     if (!validated.success) {
-      console.error('Sync validation failed:', validated.error.flatten());
+      logger.error('Sync validation failed:', validated.error.flatten());
       return NextResponse.json(
         { error: 'Invalid request data', details: validated.error.flatten() },
         { status: 400 }

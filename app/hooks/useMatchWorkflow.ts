@@ -1,33 +1,76 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import type { MatchResult } from '@/types/matching';
+
+const SESSION_KEY = 'bc-dc-sync-matches';
+const SESSION_SELECTED_KEY = 'bc-dc-sync-selected';
 
 export function useMatchWorkflow() {
   const [matches, setMatches] = useState<MatchResult[]>([]);
   const [selectedMatches, setSelectedMatches] = useState<Set<number>>(new Set());
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [progress, setProgress] = useState({ current: 0, total: 0 });
+
+  // Load matches from session storage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedMatches = sessionStorage.getItem(SESSION_KEY);
+      const savedSelected = sessionStorage.getItem(SESSION_SELECTED_KEY);
+      
+      if (savedMatches) {
+        try {
+          const parsed = JSON.parse(savedMatches);
+          setMatches(parsed);
+        } catch (e) {
+          // Invalid data, clear it
+          sessionStorage.removeItem(SESSION_KEY);
+        }
+      }
+      
+      if (savedSelected) {
+        try {
+          const parsed = JSON.parse(savedSelected);
+          setSelectedMatches(new Set(parsed));
+        } catch (e) {
+          // Invalid data, clear it
+          sessionStorage.removeItem(SESSION_SELECTED_KEY);
+        }
+      }
+    }
+  }, []);
+
+  // Save matches to session storage when they change
+  useEffect(() => {
+    if (typeof window !== 'undefined' && matches.length > 0) {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(matches));
+    }
+  }, [matches]);
+
+  // Save selected matches to session storage when they change
+  useEffect(() => {
+    if (typeof window !== 'undefined' && selectedMatches.size > 0) {
+      sessionStorage.setItem(SESSION_SELECTED_KEY, JSON.stringify(Array.from(selectedMatches)));
+    }
+  }, [selectedMatches]);
 
   const processMatches = useCallback(async (purchases: any[], discogsToken?: string) => {
     setIsProcessing(true);
     setError(null);
     setSelectedMatches(new Set());
+    setProgress({ current: 0, total: purchases.length });
 
     try {
-      // Process purchases one by one and collect results
-      const allMatches: MatchResult[] = [];
-      
-      for (const purchase of purchases) {
+      // Process all purchases in parallel for better performance
+      const headers: HeadersInit = { 'Content-Type': 'application/json' };
+      if (discogsToken) {
+        headers['x-discogs-token'] = discogsToken;
+      }
+
+      // Create all match promises
+      const matchPromises = purchases.map(async (purchase, index) => {
         try {
-          // Debug log to see the structure
-          console.log('Processing purchase:', purchase);
-          
-          const headers: HeadersInit = { 'Content-Type': 'application/json' };
-          if (discogsToken) {
-            headers['x-discogs-token'] = discogsToken;
-          }
-          
           const matchResponse = await fetch('/api/match', {
             method: 'POST',
             headers,
@@ -43,11 +86,12 @@ export function useMatchWorkflow() {
             }),
           });
 
+          // Update progress
+          setProgress(prev => ({ ...prev, current: prev.current + 1 }));
+
           if (!matchResponse.ok) {
-            const title = purchase.item_title || purchase.itemTitle || 'Unknown';
-            console.error(`Failed to match ${title}`);
-            // Add a no-match result for failed requests
-            allMatches.push({
+            // Return a no-match result for failed requests
+            return {
               bandcampItem: {
                 artist: purchase.artist || 'Unknown Artist',
                 itemTitle: purchase.item_title || purchase.itemTitle || 'Unknown Title',
@@ -58,51 +102,19 @@ export function useMatchWorkflow() {
               discogsMatch: null,
               confidence: 0,
               reasoning: ['Failed to fetch matches from API']
-            });
-            continue;
+            };
           }
 
           const matchData = await matchResponse.json();
           if (matchData.success && matchData.result) {
-            // Ensure the result has the required structure
             const result = matchData.result;
             if (result.bandcampItem) {
-              allMatches.push(result);
-            } else {
-              // Fallback if result doesn't have expected structure
-              allMatches.push({
-                bandcampItem: {
-                  artist: purchase.artist || 'Unknown Artist',
-                  itemTitle: purchase.item_title || purchase.itemTitle || 'Unknown Title',
-                  itemUrl: purchase.item_url || purchase.itemUrl || '',
-                  purchaseDate: purchase.purchase_date || purchase.purchaseDate || new Date().toISOString(),
-                  format: purchase.format || 'Unknown'
-                },
-                discogsMatch: null,
-                confidence: 0,
-                reasoning: ['Invalid match result structure']
-              });
+              return result;
             }
-          } else {
-            // API returned error or no result
-            allMatches.push({
-              bandcampItem: {
-                artist: purchase.artist || 'Unknown Artist',
-                itemTitle: purchase.item_title || purchase.itemTitle || 'Unknown Title',
-                itemUrl: purchase.item_url || purchase.itemUrl || '',
-                purchaseDate: purchase.purchase_date || purchase.purchaseDate || new Date().toISOString(),
-                format: purchase.format || 'Unknown'
-              },
-              discogsMatch: null,
-              confidence: 0,
-              reasoning: [matchData.error || 'No match result returned']
-            });
           }
-        } catch (err) {
-          const title = purchase.item_title || purchase.itemTitle || 'Unknown';
-          console.error(`Error matching ${title}:`, err);
-          // Add a no-match result for errors
-          allMatches.push({
+          
+          // Fallback for invalid response structure
+          return {
             bandcampItem: {
               artist: purchase.artist || 'Unknown Artist',
               itemTitle: purchase.item_title || purchase.itemTitle || 'Unknown Title',
@@ -112,10 +124,30 @@ export function useMatchWorkflow() {
             },
             discogsMatch: null,
             confidence: 0,
-            reasoning: ['Error during matching process']
-          });
+            reasoning: [matchData?.error || 'No match found']
+          };
+        } catch (err) {
+          // Update progress even on error
+          setProgress(prev => ({ ...prev, current: prev.current + 1 }));
+          
+          // Return a no-match result for errors
+          return {
+            bandcampItem: {
+              artist: purchase.artist || 'Unknown Artist',
+              itemTitle: purchase.item_title || purchase.itemTitle || 'Unknown Title',
+              itemUrl: purchase.item_url || purchase.itemUrl || '',
+              purchaseDate: purchase.purchase_date || purchase.purchaseDate || new Date().toISOString(),
+              format: purchase.format || 'Unknown'
+            },
+            discogsMatch: null,
+            confidence: 0,
+            reasoning: ['Error processing match']
+          };
         }
-      }
+      });
+
+      // Wait for all matches to complete
+      const allMatches = await Promise.all(matchPromises);
 
       setMatches(allMatches);
 
@@ -135,6 +167,7 @@ export function useMatchWorkflow() {
       throw err;
     } finally {
       setIsProcessing(false);
+      setProgress({ current: 0, total: 0 });
     }
   }, []);
 
@@ -168,6 +201,13 @@ export function useMatchWorkflow() {
     setMatches([]);
     setSelectedMatches(new Set());
     setError(null);
+    setProgress({ current: 0, total: 0 });
+    
+    // Clear session storage
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(SESSION_SELECTED_KEY);
+    }
   }, []);
 
   const selectedItems = useMemo(() => {
@@ -200,6 +240,7 @@ export function useMatchWorkflow() {
     selectedItems,
     isProcessing,
     error,
+    progress,
     matchStats,
     processMatches,
     toggleMatch,

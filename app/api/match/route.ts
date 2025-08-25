@@ -4,6 +4,7 @@ import { logger } from '@/lib/utils/logger';
 import { matchAlbumSafe, isMatchError } from '@/lib/matching';
 import { getDiscogsClient } from '@/lib/discogs/client-singleton';
 import { validateBandcampPurchase, SearchQuerySchema } from '@/lib/validation/schemas';
+import { matchRateLimit } from '@/lib/api/rate-limit';
 import type { DiscogsSearchQuery } from '@/types/matching';
 
 // Request schema
@@ -26,6 +27,21 @@ const MatchRequestSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // Check rate limit
+    const { success, remaining } = await matchRateLimit.check(request);
+    if (!success) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Remaining': remaining.toString(),
+            'Retry-After': '60'
+          }
+        }
+      );
+    }
+
     // Get token from header
     const token = request.headers.get('x-discogs-token');
     logger.info('Match API called', { hasToken: !!token });

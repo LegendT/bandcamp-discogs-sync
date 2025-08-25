@@ -19,6 +19,7 @@ export default function Home() {
     selectedItems,
     isProcessing,
     error: matchError,
+    progress,
     matchStats,
     processMatches,
     toggleMatch,
@@ -107,7 +108,21 @@ export default function Home() {
         {isProcessing && (
           <div aria-live="polite" aria-busy="true">
             <MatchListSkeleton />
-            <span className="sr-only">Processing matches, please wait</span>
+            {progress.total > 0 && (
+              <div className="mt-4 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-600">Processing matches...</span>
+                  <span className="text-sm font-medium">{progress.current} / {progress.total}</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${(progress.current / progress.total) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
+            <span className="sr-only">Processing matches, please wait. {progress.current} of {progress.total} completed.</span>
           </div>
         )}
 
