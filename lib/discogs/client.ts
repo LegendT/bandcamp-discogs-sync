@@ -11,10 +11,10 @@ export class DiscogsClient {
   private client: AxiosInstance;
   private rateLimiter = getDiscogsRateLimiter();
 
-  constructor() {
-    this.token = process.env.DISCOGS_USER_TOKEN || '';
+  constructor(token?: string) {
+    this.token = token || process.env.DISCOGS_USER_TOKEN || '';
     if (!this.token) {
-      logger.warn('DISCOGS_USER_TOKEN not set in environment');
+      logger.warn('No Discogs token provided');
     }
     
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
@@ -105,5 +105,54 @@ export class DiscogsClient {
         }
       }
     }, `searchReleases: ${query.artist} - ${query.title}`);
+  }
+
+  /**
+   * Add a release to user's collection
+   * Requires valid user token with collection_write scope
+   */
+  async addToCollection(releaseId: number): Promise<{ success: boolean; error?: string }> {
+    if (!this.token) {
+      return { 
+        success: false, 
+        error: 'Discogs token not configured. Add DISCOGS_USER_TOKEN to your .env.local file.' 
+      };
+    }
+
+    return this.rateLimiter.execute(async () => {
+      try {
+        // Get username first
+        const identityResponse = await this.client.get('/oauth/identity');
+        const username = identityResponse.data.username;
+
+        // Add to collection (folder 1 is "All" folder)
+        await this.client.post(
+          `/users/${username}/collection/folders/1/releases/${releaseId}`,
+          {}
+        );
+
+        logger.info(`Added release ${releaseId} to collection`);
+        return { success: true };
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const message = error.response?.data?.message || error.message;
+          logger.error(`Failed to add to collection: ${message}`);
+          
+          // Check for common errors
+          if (error.response?.status === 401) {
+            return { success: false, error: 'Invalid Discogs token. Please check your token.' };
+          }
+          if (error.response?.status === 404) {
+            return { success: false, error: 'Release not found on Discogs.' };
+          }
+          if (error.response?.status === 422) {
+            return { success: false, error: 'This release is already in your collection.' };
+          }
+          
+          return { success: false, error: message };
+        }
+        return { success: false, error: 'Failed to add to collection' };
+      }
+    }, `addToCollection: ${releaseId}`);
   }
 }

@@ -15,17 +15,16 @@ Automatically sync your Bandcamp purchases to your Discogs collection with 92%+ 
    npm install
    ```
 
-3. **Configure environment:**
-   ```bash
-   cp .env.example .env.local
-   # Add your Discogs personal access token
-   ```
-
-4. **Start development server:**
+3. **Start development server:**
    ```bash
    npm run dev
    # Visit http://localhost:3000
    ```
+
+4. **Get your Discogs token:**
+   - Go to https://www.discogs.com/settings/developers
+   - Click "Generate new token"
+   - Copy the token and paste it in the app's UI
 
 ## 📁 Project Structure
 
@@ -154,7 +153,7 @@ Note: Development routes are only available when NODE_ENV is not 'production'.
 - **Quality**: ESLint, Prettier, TypeScript strict mode
 - **Libraries**: Axios, Zod, Papa Parse, p-throttle
 
-## ✅ Current Features (MVP - Story 03 Complete with Critical Fixes)
+## ✅ Current Features (MVP - Story 04 Complete)
 
 - ✅ **Bandcamp CSV parsing** with duplicate detection
 - ✅ **Discogs API integration** with enhanced rate limiting
@@ -180,26 +179,36 @@ Note: Development routes are only available when NODE_ENV is not 'production'.
   - CORS and security headers (CSP, HSTS)
   - Request size limits and rate limiting
 - ✅ **API endpoints**
-  - `/api/match` - Single album matching with validation
+  - `/api/match` - Album matching with validation
   - `/api/upload` - CSV upload with sanitization
-  - Health check endpoint with metrics
-- ✅ **Comprehensive test suite** (79 tests total)
+  - `/api/sync` - Add matches to Discogs collection
+- ✅ **Web UI for sync workflow**
+  - Secure token input (no env files needed)
+  - Test connection to verify Discogs access
+  - Drag-and-drop CSV upload
+  - User-controlled match selection with checkboxes
+  - Pre-selected high-confidence matches (80%+)
+  - Batch size limit (20 items) to respect rate limits
+  - Real-time sync progress and results
+- ✅ **Comprehensive test suite** (98 tests total)
   - 58 tests for matching engine
   - 10 tests for safe engine
+  - 30 tests for UI components and hooks
   - Jest configuration fixed for ES modules
 - ✅ **Development tools** and test routes
-- 🚧 **Web UI for sync workflow** (coming in Story 04)
-- 🚧 **Sync pipeline implementation** (coming in Story 05)
+- 🚧 **Full sync pipeline** (coming in Story 05)
+- 🚧 **User authentication** (coming in Story 09)
 
 ## 🚦 Project Status
 
-Currently in **Day 3** of 14-day MVP sprint:
+Currently in **Day 4-5** of 14-day MVP sprint:
 
 - ✅ Story 01: Development environment setup
 - ✅ Story 02: Data extraction layer (CSV parsing)
 - ✅ Story 03: Matching engine (92% accuracy + critical fixes)
-- 🚧 Story 04: Sync workflow UI (ready to start)
-- ⏳ Story 05: Sync pipeline implementation
+- ✅ Story 04: Sync workflow UI (complete with real sync functionality)
+- 🚧 Story 05: Enhanced sync pipeline (bulk operations, duplicate detection)
+- ⏳ Story 06: Deploy beta version
 
 ## ✅ Production-Ready Features
 

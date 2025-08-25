@@ -247,7 +247,7 @@ export function validateWithDetails<T>(
   const result = schema.safeParse(data);
   
   if (!result.success) {
-    const fieldErrors = result.error.errors.map(err => ({
+    const fieldErrors = result.error.issues.map(err => ({
       field: err.path.join('.'),
       message: err.message,
       value: err.path.reduce((obj: any, key) => obj?.[key], data)
@@ -258,6 +258,20 @@ export function validateWithDetails<T>(
   
   return result.data;
 }
+
+// Sync endpoint schema
+export const syncSchema = z.object({
+  matches: z.array(z.object({
+    bandcampItem: BandcampPurchaseSchema,
+    discogsMatch: z.object({
+      id: z.number(),
+      title: z.string(),
+      thumb: z.string().optional()
+    }).nullable(),
+    confidence: z.number(),
+    reasoning: z.array(z.string())
+  }))
+});
 
 // Convenience validators
 export const validateBandcampPurchase = (data: unknown) => 

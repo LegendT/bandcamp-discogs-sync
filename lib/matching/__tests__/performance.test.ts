@@ -20,7 +20,7 @@ describe('Performance Benchmarks', () => {
       const elapsed = performance.now() - startTime;
       
       expect(elapsed).toBeLessThan(100);
-      console.log(`Normalized 1000 strings in ${elapsed.toFixed(2)}ms`);
+      // Performance test completed: normalized 1000 strings in ${elapsed.toFixed(2)}ms
     });
 
     it('should calculate similarity for 100 string pairs in under 50ms', () => {
@@ -34,7 +34,7 @@ describe('Performance Benchmarks', () => {
       const elapsed = performance.now() - startTime;
       
       expect(elapsed).toBeLessThan(50);
-      console.log(`Calculated 100 similarities in ${elapsed.toFixed(2)}ms`);
+      // Performance test completed: calculated 100 similarities in ${elapsed.toFixed(2)}ms
     });
   });
 
@@ -63,7 +63,7 @@ describe('Performance Benchmarks', () => {
       const elapsed = performance.now() - startTime;
       
       expect(elapsed).toBeLessThan(1000);
-      console.log(`Matched 100 albums in ${elapsed.toFixed(2)}ms (${(elapsed/100).toFixed(2)}ms per album)`);
+      // Performance test completed: matched 100 albums in ${elapsed.toFixed(2)}ms (${(elapsed/100).toFixed(2)}ms per album)
     });
   });
 
@@ -84,7 +84,7 @@ describe('Performance Benchmarks', () => {
       const finalMemory = process.memoryUsage().heapUsed;
       const memoryIncrease = (finalMemory - initialMemory) / 1024 / 1024; // MB
       
-      console.log(`Memory increase: ${memoryIncrease.toFixed(2)}MB`);
+      // Performance test completed: memory increase ${memoryIncrease.toFixed(2)}MB
       expect(memoryIncrease).toBeLessThan(10); // Should not increase by more than 10MB
     });
   });
@@ -99,7 +99,7 @@ describe('Performance Benchmarks', () => {
       const elapsed = performance.now() - startTime;
       
       expect(elapsed).toBeLessThan(10);
-      console.log(`Levenshtein for 200-char strings: ${elapsed.toFixed(2)}ms`);
+      // Performance test completed: Levenshtein for 200-char strings in ${elapsed.toFixed(2)}ms
     });
 
     it('should handle pathological token matching cases', () => {

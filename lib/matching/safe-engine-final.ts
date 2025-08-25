@@ -202,6 +202,7 @@ export async function matchAlbumSafe(
   options: MatchingOptions & { 
     circuitBreaker?: CircuitBreaker;
     metrics?: MetricsCollector;
+    timeout?: number;
   } = {}
 ): Promise<SafeMatchResult> {
   const circuitBreaker = options.circuitBreaker || defaultCircuitBreaker;
@@ -227,10 +228,10 @@ export async function matchAlbumSafe(
     if (!validatePurchase(purchase)) {
       metrics.recordValidationError();
       logger.warn('Invalid purchase data', { 
-        purchase: {
-          artist: purchase?.artist?.substring(0, 50),
-          title: purchase?.itemTitle?.substring(0, 50)
-        }, 
+        purchase: purchase ? {
+          artist: (purchase as any).artist?.substring(0, 50),
+          title: (purchase as any).itemTitle?.substring(0, 50)
+        } : null, 
         requestId 
       });
       return {
@@ -244,7 +245,7 @@ export async function matchAlbumSafe(
     if (!validateReleases(releases)) {
       metrics.recordValidationError();
       logger.warn('Invalid releases data', { 
-        releaseCount: Array.isArray(releases) ? releases.length : 'not-array',
+        releaseCount: Array.isArray(releases) ? (releases as any[]).length : 'not-array',
         requestId
       });
       return {

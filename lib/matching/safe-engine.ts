@@ -73,9 +73,9 @@ export async function matchAlbumSafe(
           bestMatch: null,
           alternatives: [],
           searchQuery: {
-            artist: purchase?.artist || '',
-            title: purchase?.itemTitle || '',
-            format: purchase?.format || ''
+            artist: (purchase as any)?.artist || '',
+            title: (purchase as any)?.itemTitle || '',
+            format: (purchase as any)?.format || ''
           },
           status: 'no-match'
         }
@@ -84,8 +84,8 @@ export async function matchAlbumSafe(
     
     if (!validateReleases(releases)) {
       logger.warn('Invalid releases data', { 
-        releaseCount: releases?.length,
-        sample: releases?.[0]
+        releaseCount: Array.isArray(releases) ? (releases as any[]).length : 'not-array',
+        sample: Array.isArray(releases) ? (releases as any[])[0] : null
       });
       return {
         type: 'invalid_data',

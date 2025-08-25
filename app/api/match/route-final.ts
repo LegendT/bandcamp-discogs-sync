@@ -6,7 +6,9 @@ import {
   getDefaultMetrics,
   getCircuitBreakerState 
 } from '@/lib/matching/safe-engine-final';
-import { discogsClient } from '@/lib/discogs/client-singleton';
+import { getDiscogsClient } from '@/lib/discogs/client-singleton';
+import type { DiscogsSearchQuery } from '@/types/matching';
+import type { BandcampPurchase, PurchaseFormat } from '@/types/bandcamp';
 import { 
   validateBandcampPurchase,
   validateWithDetails,
@@ -84,11 +86,16 @@ export async function POST(request: NextRequest) {
           'Invalid request format'
         );
         
-        // Transform and validate purchase data
-        const purchase = validateBandcampPurchase({
+        // Transform and validate purchase data  
+        const purchase: BandcampPurchase = {
           ...validatedRequest.purchase,
-          purchaseDate: new Date(validatedRequest.purchase.purchaseDate)
-        });
+          purchaseDate: new Date(validatedRequest.purchase.purchaseDate),
+          artist: validatedRequest.purchase.artist || 'Unknown Artist',
+          itemTitle: validatedRequest.purchase.itemTitle || 'Unknown Title',
+          itemUrl: validatedRequest.purchase.itemUrl || '',
+          format: validatedRequest.purchase.format as PurchaseFormat,
+          rawFormat: validatedRequest.purchase.rawFormat || validatedRequest.purchase.format
+        };
         
         // Validate search query
         const searchQuery = validateWithDetails(SearchQuerySchema, {
@@ -96,6 +103,13 @@ export async function POST(request: NextRequest) {
           title: purchase.itemTitle,
           format: purchase.format !== 'Digital' ? purchase.format : undefined
         });
+        
+        // Ensure required fields for Discogs API
+        const discogsQuery: DiscogsSearchQuery = {
+          artist: searchQuery.artist || 'Unknown',
+          title: searchQuery.title || 'Unknown',
+          format: searchQuery.format
+        };
         
         // Log the matching request
         logger.info('Match request received', {
@@ -110,7 +124,8 @@ export async function POST(request: NextRequest) {
         // Search Discogs with error handling
         let releases;
         try {
-          releases = await discogsClient.searchReleases(searchQuery);
+          const discogsClient = getDiscogsClient();
+          releases = await discogsClient.searchReleases(discogsQuery);
         } catch (error: any) {
           logger.error('Discogs search failed', {
             requestId,
@@ -220,7 +235,7 @@ export async function POST(request: NextRequest) {
             400,
             requestId,
             { 
-              fieldErrors: error.errors.map(e => ({
+              fieldErrors: error.issues.map(e => ({
                 field: e.path.join('.'),
                 message: e.message
               }))

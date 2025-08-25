@@ -100,8 +100,8 @@ export function calculateLevenshteinDistance(a: string, b: string): number {
   if (b.length === 0) return a.length;
   
   // Use single array instead of matrix for better memory efficiency
-  const previousRow = Array(b.length + 1);
-  const currentRow = Array(b.length + 1);
+  let previousRow = Array(b.length + 1);
+  let currentRow = Array(b.length + 1);
   
   // Initialize first row
   for (let j = 0; j <= b.length; j++) {

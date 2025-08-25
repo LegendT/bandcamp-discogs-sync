@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { logger } from '@/lib/utils/logger';
 import { matchAlbumSafe, isMatchError } from '@/lib/matching';
-import { discogsClient } from '@/lib/discogs/client-singleton';
+import { getDiscogsClient } from '@/lib/discogs/client-singleton';
 import { validateBandcampPurchase, SearchQuerySchema } from '@/lib/validation/schemas';
+import type { DiscogsSearchQuery } from '@/types/matching';
 
 // Request schema
 const MatchRequestSchema = z.object({
@@ -30,17 +31,29 @@ export async function POST(request: NextRequest) {
     const validated = MatchRequestSchema.parse(body);
     
     // Transform and validate purchase data
-    const purchase = validateBandcampPurchase({
+    const purchaseData = {
       ...validated.purchase,
-      purchaseDate: new Date(validated.purchase.purchaseDate)
-    });
+      purchaseDate: new Date(validated.purchase.purchaseDate),
+      artist: validated.purchase.artist || 'Unknown Artist',
+      itemTitle: validated.purchase.itemTitle || 'Unknown Title',
+      itemUrl: validated.purchase.itemUrl || '',
+      rawFormat: validated.purchase.rawFormat || validated.purchase.format || ''
+    };
+    const purchase = validateBandcampPurchase(purchaseData);
     
     // Search Discogs
-    const searchQuery = SearchQuerySchema.parse({
+    const searchQueryValidated = SearchQuerySchema.parse({
       artist: purchase.artist,
       title: purchase.itemTitle,
       format: purchase.format !== 'Digital' ? purchase.format : undefined
     });
+    
+    // Ensure required fields for type safety
+    const searchQuery: DiscogsSearchQuery = {
+      artist: searchQueryValidated.artist || 'Unknown',
+      title: searchQueryValidated.title || 'Unknown',
+      format: searchQueryValidated.format
+    };
     
     logger.info('Matching request', {
       artist: searchQuery.artist,
@@ -48,6 +61,7 @@ export async function POST(request: NextRequest) {
       format: searchQuery.format
     });
     
+    const discogsClient = getDiscogsClient();
     const releases = await discogsClient.searchReleases(searchQuery);
     
     // Perform matching
@@ -79,7 +93,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: false,
         error: 'Invalid request data',
-        details: error.errors
+        details: error.issues
       }, { status: 400 });
     }
     
