@@ -11,10 +11,10 @@ export class DiscogsClient {
   private client: AxiosInstance;
   private rateLimiter = getDiscogsRateLimiter();
 
-  constructor() {
-    this.token = process.env.DISCOGS_USER_TOKEN || '';
+  constructor(token?: string) {
+    this.token = token || process.env.DISCOGS_USER_TOKEN || '';
     if (!this.token) {
-      logger.warn('DISCOGS_USER_TOKEN not set in environment');
+      logger.warn('No Discogs token provided');
     }
     
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
@@ -66,14 +66,13 @@ export class DiscogsClient {
 
         // Build search query
         if (query.artist && query.title) {
-          // Search by both artist and title
+          // Use general query for better results
           params.q = `${query.artist} ${query.title}`;
-          params.artist = query.artist;
-          params.release_title = query.title;
+          // Don't use specific fields as they're too restrictive
         } else if (query.artist) {
-          params.artist = query.artist;
+          params.q = query.artist;
         } else if (query.title) {
-          params.release_title = query.title;
+          params.q = query.title;
         }
 
         // Add format filter if specified
@@ -83,8 +82,22 @@ export class DiscogsClient {
 
         // Log search without sensitive data
         logger.info(`Searching Discogs for: ${query.artist || 'any artist'} - ${query.title || 'any title'}`);
+        logger.info('Discogs search params:', params);
         
         const response = await this.client.get<DiscogsSearchResult>('/database/search', { params });
+        
+        // Log response details for debugging
+        logger.info('Discogs search response', {
+          status: response.status,
+          resultsCount: response.data.results?.length || 0,
+          hasResults: !!response.data.results,
+          firstResult: response.data.results?.[0] ? {
+            id: response.data.results[0].id,
+            title: response.data.results[0].title,
+            artists_sort: response.data.results[0].artists_sort,
+            hasArtistsSort: !!response.data.results[0].artists_sort
+          } : null
+        });
         
         return response.data.results || [];
       } catch (error) {
@@ -97,6 +110,14 @@ export class DiscogsClient {
             logger.error('Discogs authentication failed. Check your API token.');
             throw new Error('Authentication failed');
           }
+          
+          // Check if response is HTML (common when hitting wrong endpoint or rate limits)
+          const contentType = error.response?.headers?.['content-type'];
+          if (contentType && contentType.includes('text/html')) {
+            logger.error('Discogs returned HTML instead of JSON - possible rate limit or wrong endpoint');
+            throw new Error('Invalid response from Discogs API');
+          }
+          
           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
         } else {
@@ -105,5 +126,54 @@ export class DiscogsClient {
         }
       }
     }, `searchReleases: ${query.artist} - ${query.title}`);
+  }
+
+  /**
+   * Add a release to user's collection
+   * Requires valid user token with collection_write scope
+   */
+  async addToCollection(releaseId: number): Promise<{ success: boolean; error?: string }> {
+    if (!this.token) {
+      return { 
+        success: false, 
+        error: 'Discogs token not configured. Add DISCOGS_USER_TOKEN to your .env.local file.' 
+      };
+    }
+
+    return this.rateLimiter.execute(async () => {
+      try {
+        // Get username first
+        const identityResponse = await this.client.get('/oauth/identity');
+        const username = identityResponse.data.username;
+
+        // Add to collection (folder 1 is "All" folder)
+        await this.client.post(
+          `/users/${username}/collection/folders/1/releases/${releaseId}`,
+          {}
+        );
+
+        logger.info(`Added release ${releaseId} to collection`);
+        return { success: true };
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const message = error.response?.data?.message || error.message;
+          logger.error(`Failed to add to collection: ${message}`);
+          
+          // Check for common errors
+          if (error.response?.status === 401) {
+            return { success: false, error: 'Invalid Discogs token. Please check your token.' };
+          }
+          if (error.response?.status === 404) {
+            return { success: false, error: 'Release not found on Discogs.' };
+          }
+          if (error.response?.status === 422) {
+            return { success: false, error: 'This release is already in your collection.' };
+          }
+          
+          return { success: false, error: message };
+        }
+        return { success: false, error: 'Failed to add to collection' };
+      }
+    }, `addToCollection: ${releaseId}`);
   }
 }

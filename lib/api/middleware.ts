@@ -244,16 +244,28 @@ export function withSecurityHeaders(response: NextResponse): NextResponse {
  */
 export function compose(...middlewares: Array<(request: NextRequest) => Promise<NextResponse>>) {
   return async (request: NextRequest): Promise<NextResponse> => {
-    let result = request;
+    let response: NextResponse | null = null;
     
     for (const middleware of middlewares) {
-      result = await middleware(result);
+      response = await middleware(request);
       // If middleware returns a response, stop processing
-      if (result instanceof NextResponse) {
-        return result;
+      if (response instanceof NextResponse) {
+        return response;
       }
     }
     
-    return result as any;
+    // This should never happen if middlewares are properly implemented
+    return new NextResponse('Internal Server Error', { status: 500 });
+  };
+}
+
+/**
+ * Apply middleware to a handler function
+ */
+export function applyMiddleware(
+  handler: (request: NextRequest) => Promise<NextResponse>
+) {
+  return async (request: NextRequest): Promise<NextResponse> => {
+    return withSecurityHeaders(await handler(request));
   };
 }

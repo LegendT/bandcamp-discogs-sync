@@ -49,7 +49,8 @@ function validateReleases(releases: any[]): releases is DiscogsRelease[] {
     if (!release || typeof release !== 'object') return false;
     if (!release.id || typeof release.id !== 'number') return false;
     if (!release.title || typeof release.title !== 'string') return false;
-    if (!release.artists_sort || typeof release.artists_sort !== 'string') return false;
+    // The search API doesn't always return artists_sort, but title contains artist info
+    // We'll be more flexible here since the matching engine handles missing data
     return true;
   });
 }
@@ -73,9 +74,9 @@ export async function matchAlbumSafe(
           bestMatch: null,
           alternatives: [],
           searchQuery: {
-            artist: purchase?.artist || '',
-            title: purchase?.itemTitle || '',
-            format: purchase?.format || ''
+            artist: (purchase as any)?.artist || '',
+            title: (purchase as any)?.itemTitle || '',
+            format: (purchase as any)?.format || ''
           },
           status: 'no-match'
         }
@@ -84,8 +85,8 @@ export async function matchAlbumSafe(
     
     if (!validateReleases(releases)) {
       logger.warn('Invalid releases data', { 
-        releaseCount: releases?.length,
-        sample: releases?.[0]
+        releaseCount: Array.isArray(releases) ? (releases as any[]).length : 'not-array',
+        sample: Array.isArray(releases) ? (releases as any[])[0] : null
       });
       return {
         type: 'invalid_data',

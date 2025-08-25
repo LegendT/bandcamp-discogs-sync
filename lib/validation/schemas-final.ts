@@ -247,7 +247,7 @@ export function validateWithDetails<T>(
   const result = schema.safeParse(data);
   
   if (!result.success) {
-    const fieldErrors = result.error.errors.map(err => ({
+    const fieldErrors = result.error.issues.map(err => ({
       field: err.path.join('.'),
       message: err.message,
       value: err.path.reduce((obj: any, key) => obj?.[key], data)
@@ -258,6 +258,32 @@ export function validateWithDetails<T>(
   
   return result.data;
 }
+
+// Sync endpoint schema
+export const syncSchema = z.object({
+  matches: z.array(z.object({
+    bandcampItem: z.object({
+      artist: safeString(300),
+      itemTitle: safeString(500),
+      itemUrl: z.string().max(2000),
+      purchaseDate: flexibleDate,
+      format: z.string(), // Allow any format string
+      rawFormat: safeString(100).optional() // Optional
+    }),
+    discogsMatch: z.object({
+      id: z.number(),
+      title: z.string(),
+      artists_sort: z.string().optional(), // Add this field
+      year: z.union([z.string(), z.number()]).optional(), // Accept both string and number
+      resource_url: z.string().optional(),
+      uri: z.string().optional(),
+      formats: z.array(z.any()).optional(),
+      thumb: z.string().optional()
+    }).nullable(),
+    confidence: z.number(),
+    reasoning: z.array(z.string()).optional() // Make optional
+  }))
+});
 
 // Convenience validators
 export const validateBandcampPurchase = (data: unknown) => 

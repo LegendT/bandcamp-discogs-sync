@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { logger } from '@/lib/utils/logger';
 import { matchAlbumSafe, isMatchError } from '@/lib/matching';
-import { discogsClient } from '@/lib/discogs/client-singleton';
+import { getDiscogsClient } from '@/lib/discogs/client-singleton';
 import { validateBandcampPurchase, SearchQuerySchema } from '@/lib/validation/schemas';
+import { matchRateLimit } from '@/lib/api/rate-limit';
+import type { DiscogsSearchQuery } from '@/types/matching';
 
 // Request schema
 const MatchRequestSchema = z.object({
@@ -25,22 +27,61 @@ const MatchRequestSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // Check rate limit
+    const { success, remaining } = await matchRateLimit.check(request);
+    if (!success) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Remaining': remaining.toString(),
+            'Retry-After': '60'
+          }
+        }
+      );
+    }
+
+    // Get token from header
+    const token = request.headers.get('x-discogs-token');
+    logger.info('Match API called', { hasToken: !!token });
+    
+    if (!token) {
+      logger.warn('No Discogs token provided in request');
+      return NextResponse.json({
+        success: false,
+        error: 'Discogs token is required'
+      }, { status: 401 });
+    }
+    
     // Parse and validate request body
     const body = await request.json();
     const validated = MatchRequestSchema.parse(body);
     
     // Transform and validate purchase data
-    const purchase = validateBandcampPurchase({
+    const purchaseData = {
       ...validated.purchase,
-      purchaseDate: new Date(validated.purchase.purchaseDate)
-    });
+      purchaseDate: new Date(validated.purchase.purchaseDate),
+      artist: validated.purchase.artist || 'Unknown Artist',
+      itemTitle: validated.purchase.itemTitle || 'Unknown Title',
+      itemUrl: validated.purchase.itemUrl || '',
+      rawFormat: validated.purchase.rawFormat || validated.purchase.format || ''
+    };
+    const purchase = validateBandcampPurchase(purchaseData);
     
     // Search Discogs
-    const searchQuery = SearchQuerySchema.parse({
+    const searchQueryValidated = SearchQuerySchema.parse({
       artist: purchase.artist,
       title: purchase.itemTitle,
       format: purchase.format !== 'Digital' ? purchase.format : undefined
     });
+    
+    // Ensure required fields for type safety
+    const searchQuery: DiscogsSearchQuery = {
+      artist: searchQueryValidated.artist || 'Unknown',
+      title: searchQueryValidated.title || 'Unknown',
+      format: searchQueryValidated.format
+    };
     
     logger.info('Matching request', {
       artist: searchQuery.artist,
@@ -48,6 +89,7 @@ export async function POST(request: NextRequest) {
       format: searchQuery.format
     });
     
+    const discogsClient = getDiscogsClient(token);
     const releases = await discogsClient.searchReleases(searchQuery);
     
     // Perform matching
@@ -67,9 +109,34 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
     
+    // Transform the result to match the expected format
+    const matchResult = {
+      bandcampItem: {
+        artist: purchase.artist,
+        itemTitle: purchase.itemTitle,
+        itemUrl: purchase.itemUrl,
+        purchaseDate: purchase.purchaseDate,
+        format: purchase.format
+      },
+      discogsMatch: result.bestMatch ? {
+        id: result.bestMatch.release.id,
+        title: result.bestMatch.release.title,
+        artists_sort: result.bestMatch.release.artists_sort,
+        year: result.bestMatch.release.year,
+        resource_url: result.bestMatch.release.resource_url,
+        uri: result.bestMatch.release.uri,
+        formats: result.bestMatch.release.formats
+      } : null,
+      confidence: result.bestMatch?.confidence || 0,
+      reasoning: result.bestMatch ? [
+        `Match type: ${result.bestMatch.matchType}`,
+        `Status: ${result.status}`
+      ] : ['No match found']
+    };
+    
     return NextResponse.json({
       success: true,
-      result
+      result: matchResult
     });
     
   } catch (error) {
@@ -79,7 +146,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: false,
         error: 'Invalid request data',
-        details: error.errors
+        details: error.issues
       }, { status: 400 });
     }
     

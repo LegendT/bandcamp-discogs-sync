@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { BandcampPurchase } from '@/types/bandcamp';
 
 // Sanitize strings by removing potential XSS/injection characters
 const sanitizeString = (str: string): string => {
@@ -36,12 +37,14 @@ export const BandcampCsvRowSchema = z.object({
 // Bandcamp purchase schema (transformed)
 export const BandcampPurchaseSchema = z.object({
   artist: safeString(200),
-  itemTitle: safeString(300),
+  itemTitle: safeString(300), 
   itemUrl: z.string().url(),
   purchaseDate: z.date(),
   format: z.enum(['Digital', 'Vinyl', 'CD', 'Cassette', 'Other']),
-  rawFormat: safeString(100)
-});
+  rawFormat: safeString(100),
+  originalTitle: safeString(300).optional(),
+  originalArtist: safeString(200).optional()
+}) as z.ZodType<BandcampPurchase>;
 
 // Matching options schema
 export const MatchingOptionsSchema = z.object({
@@ -77,12 +80,12 @@ export const BatchProcessingSchema = z.object({
 /**
  * Validate and sanitize Bandcamp purchase data
  */
-export function validateBandcampPurchase(data: unknown) {
+export function validateBandcampPurchase(data: unknown): BandcampPurchase {
   try {
     return BandcampPurchaseSchema.parse(data);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const issues = error.errors.map(e => `${e.path.join('.')}: ${e.message}`);
+      const issues = error.issues.map(e => `${e.path.join('.')}: ${e.message}`);
       throw new Error(`Validation failed: ${issues.join(', ')}`);
     }
     throw error;
@@ -97,7 +100,7 @@ export function validateCsvRow(data: unknown) {
     return BandcampCsvRowSchema.parse(data);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const issues = error.errors.map(e => `${e.path.join('.')}: ${e.message}`);
+      const issues = error.issues.map(e => `${e.path.join('.')}: ${e.message}`);
       throw new Error(`Invalid CSV data: ${issues.join(', ')}`);
     }
     throw error;

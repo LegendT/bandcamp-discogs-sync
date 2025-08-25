@@ -28,9 +28,14 @@ const normalizeCache = new Map<string, string>();
 const CACHE_MAX_SIZE = 1000;
 
 export function normalizeString(
-  str: string, 
+  str: string | undefined | null, 
   options: StringNormalizationOptions = {}
 ): string {
+  // Handle undefined/null values
+  if (!str) {
+    return '';
+  }
+  
   // Create cache key
   const cacheKey = `${str}::${JSON.stringify(options)}`;
   
@@ -187,17 +192,42 @@ export function calculateMatchConfidence(
   discogsRelease: DiscogsRelease,
   options: MatchingOptions = {}
 ): MatchResult {
+  // Extract artist from title if artists_sort is not available
+  // Discogs search results often return titles as "Artist - Album"
+  let discogsArtist = discogsRelease.artists_sort;
+  if (!discogsArtist && discogsRelease.title) {
+    const titleParts = discogsRelease.title.split(' - ');
+    if (titleParts.length >= 2) {
+      discogsArtist = titleParts[0].trim();
+    }
+  }
+  
+  // If still no artist, use empty string to avoid errors
+  if (!discogsArtist) {
+    discogsArtist = '';
+  }
+  
   const artistSimilarity = Math.max(
-    calculateStringSimilarity(bandcampPurchase.artist, discogsRelease.artists_sort),
-    calculateTokenSimilarity(bandcampPurchase.artist, discogsRelease.artists_sort)
+    calculateStringSimilarity(bandcampPurchase.artist, discogsArtist),
+    calculateTokenSimilarity(bandcampPurchase.artist, discogsArtist)
   );
   
+  // Extract album title from Discogs title if it contains " - "
+  let discogsTitle = discogsRelease.title;
+  if (discogsRelease.title && discogsRelease.title.includes(' - ')) {
+    const titleParts = discogsRelease.title.split(' - ');
+    if (titleParts.length >= 2) {
+      // Take everything after the first " - " as the album title
+      discogsTitle = titleParts.slice(1).join(' - ').trim();
+    }
+  }
+  
   const titleSimilarity = Math.max(
-    calculateStringSimilarity(bandcampPurchase.itemTitle, discogsRelease.title),
-    calculateTokenSimilarity(bandcampPurchase.itemTitle, discogsRelease.title),
+    calculateStringSimilarity(bandcampPurchase.itemTitle, discogsTitle),
+    calculateTokenSimilarity(bandcampPurchase.itemTitle, discogsTitle),
     calculateEditionAwareSimilarity(
       bandcampPurchase.itemTitle, 
-      discogsRelease.title,
+      discogsTitle,
       calculateStringSimilarity
     )
   );
@@ -213,8 +243,8 @@ export function calculateMatchConfidence(
   let matchType: 'exact' | 'normalized' | 'fuzzy';
   
   // Check if the original strings are exactly the same
-  const exactArtistMatch = bandcampPurchase.artist === discogsRelease.artists_sort;
-  const exactTitleMatch = bandcampPurchase.itemTitle === discogsRelease.title;
+  const exactArtistMatch = bandcampPurchase.artist === discogsArtist;
+  const exactTitleMatch = bandcampPurchase.itemTitle === discogsTitle;
   
   if (exactArtistMatch && exactTitleMatch) {
     matchType = 'exact';
