@@ -9,6 +9,12 @@ export {
 } from './engine';
 
 export {
+  matchAlbumSafe,
+  isMatchError,
+  matchAlbumBatch
+} from './safe-engine';
+
+export {
   getDiscogsFormatsForBandcamp,
   formatMatchesDiscogs,
   getFormatBonus
@@ -26,6 +32,11 @@ export type {
   StringNormalizationOptions,
   FormatMapping
 } from './types';
+
+export type {
+  MatchError,
+  SafeMatchResult
+} from './safe-engine';
 
 export type {
   EditionInfo

@@ -1,20 +1,11 @@
 import Papa from 'papaparse';
-import { z } from 'zod';
 import { BandcampPurchase, BandcampCSVRow, PurchaseFormat } from '@/types/bandcamp';
 import { ParseResult, ParseError } from '@/types/parser';
 import { logger } from '@/lib/utils/logger';
+import { BandcampCsvRowSchema, validateCsvRow } from '@/lib/validation/schemas';
 
 // File size limit: 10MB
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
-
-// Zod schema for CSV row validation
-const BandcampCSVRowSchema = z.object({
-  artist: z.string().min(1),
-  item_title: z.string().min(1),
-  item_url: z.string().url(),
-  purchase_date: z.string(),
-  format: z.string()
-});
 
 /**
  * Parse Bandcamp CSV export file from string content
@@ -131,8 +122,8 @@ function parseBandcampContent(
         rowCount++;
         
         try {
-          // Validate row data
-          const validatedRow = BandcampCSVRowSchema.parse(row.data);
+          // Validate and sanitize row data
+          const validatedRow = validateCsvRow(row.data);
           
           // Check for duplicates
           if (seenUrls.has(validatedRow.item_url)) {
