@@ -13,36 +13,50 @@ interface RateLimitStore {
 }
 
 // In-memory store for rate limiting (consider Redis for production)
+// Note: This resets on each serverless function cold start
 const store: RateLimitStore = {};
 
-// Clean up expired entries periodically
-setInterval(() => {
+// Clean up expired entries on each check to prevent memory leaks
+function cleanupExpired() {
   const now = Date.now();
   Object.keys(store).forEach(key => {
     if (store[key].resetTime < now) {
       delete store[key];
     }
   });
-}, 60000); // Clean every minute
+}
 
 export function rateLimit(options: RateLimitOptions) {
   const { windowMs, max } = options;
 
   return {
     async check(request: NextRequest): Promise<{ success: boolean; remaining: number }> {
-      // Get client identifier (IP address or fallback to a generic key)
+      // Skip rate limiting in development mode for easier testing
+      if (process.env.NODE_ENV === 'development') {
+        return { success: true, remaining: max };
+      }
+      
+      // Clean up old entries
+      cleanupExpired();
+      
+      // Get client identifier - use multiple headers for better detection
       const forwarded = request.headers.get('x-forwarded-for');
-      const ip = forwarded ? forwarded.split(',')[0] : 'unknown';
+      const realIp = request.headers.get('x-real-ip');
+      const cfConnectingIp = request.headers.get('cf-connecting-ip');
+      
+      // Try to get a unique identifier, fallback to a random session ID for development
+      const ip = forwarded?.split(',')[0] || realIp || cfConnectingIp || 
+                 `dev-${Math.random().toString(36).substring(7)}`;
+      
       const key = `rate-limit:${ip}`;
       
       const now = Date.now();
-      const resetTime = now + windowMs;
 
       // Get or create rate limit entry
       if (!store[key] || store[key].resetTime < now) {
         store[key] = {
           count: 0,
-          resetTime
+          resetTime: now + windowMs
         };
       }
 
@@ -61,6 +75,7 @@ export function rateLimit(options: RateLimitOptions) {
 }
 
 // Pre-configured rate limiters for different endpoints
+// More generous limits for development
 export const apiRateLimit = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 100 // 100 requests per minute
@@ -68,15 +83,15 @@ export const apiRateLimit = rateLimit({
 
 export const uploadRateLimit = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 10 // 10 uploads per minute
+  max: 20 // 20 uploads per minute (increased from 10)
 });
 
 export const matchRateLimit = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 200 // 200 match requests per minute (allows parallel processing)
+  max: 300 // 300 match requests per minute (increased for parallel processing)
 });
 
 export const syncRateLimit = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 20 // 20 sync operations per minute
+  max: 50 // 50 sync operations per minute (increased from 20)
 });
