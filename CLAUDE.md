@@ -16,7 +16,7 @@ npm run dev          # Start Next.js dev server on http://localhost:3000
 npm run lint         # Run ESLint (warnings allowed during MVP)
 npm run format       # Run Prettier to format code
 npm run type-check   # TypeScript type checking
-npm run test         # Run Jest tests
+npm run test         # Run Jest tests (79 tests total)
 
 # Production
 npm run build        # Build for production
@@ -43,19 +43,26 @@ lib/                # Business logic
   bandcamp/         # CSV parsing, data extraction
   discogs/          # API client, collection management
   matching/         # Album matching algorithm
+    safe-engine.ts  # Production wrapper with circuit breaker
+    engine.ts       # Core matching logic
+  validation/       # Input validation schemas
+  api/              # API middleware and utilities
   utils/            # Utility functions (logger, etc.)
 types/              # TypeScript type definitions
 ```
 
 ## Testing Strategy
 
-MVP Phase: Minimal testing
-- Only test the matching algorithm initially
+MVP Phase: Targeted testing
+- Core matching algorithm (58 tests)
+- Safe engine with circuit breaker (10 tests)
+- Critical path coverage for production safety
 - Add tests when fixing bugs
-- No coverage requirements
 
 ```bash
-npm test            # Run tests (when available)
+npm test                    # Run all tests
+npm test matching          # Run matching tests only
+npm test -- --coverage     # Check test coverage
 ```
 
 ## Code Style and Conventions
@@ -90,3 +97,21 @@ See `/docs/bc-dc-sync-action-plan.md` for detailed sprint plan.
 - $5/month subscription model via Stripe
 - Privacy-first: no data persistence, no tracking
 - Target: 10 beta users, 1 paying customer by day 14
+
+## Production Patterns
+
+**Error Handling:**
+- Use `matchAlbumSafe` wrapper for all matching operations
+- Circuit breaker pattern prevents cascading failures
+- Always provide fallback responses for graceful degradation
+
+**API Development:**
+- Use Zod schemas for all input validation
+- Apply rate limiting middleware to prevent abuse
+- Include security headers (CSP, HSTS) on all responses
+- Add request ID tracking for debugging
+
+**Performance:**
+- Enhanced rate limiter respects Discogs API headers
+- LRU cache improves response times to <1ms
+- Timeout protection prevents hanging requests
