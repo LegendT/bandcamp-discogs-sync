@@ -5,6 +5,11 @@ export interface DiscogsRelease {
   year: number;
   resource_url: string;
   uri: string;
+  formats?: Array<{
+    name: string;
+    qty: string;
+    descriptions?: string[];
+  }>;
   // Add more fields as needed
 }
 
