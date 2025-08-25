@@ -47,6 +47,9 @@ lib/                 # Core business logic
 
 types/              # TypeScript definitions
 docs/               # Project documentation
+test-data/          # Sample CSV files for testing
+scripts/            # Development and testing scripts
+tests/              # Jest integration tests
 ```
 
 ## 🧪 Development Commands
@@ -58,6 +61,7 @@ npm run dev          # Start Next.js dev server (http://localhost:3000)
 # Testing
 npm test             # Run all tests
 npm test matching    # Run matching engine tests only
+npx tsx scripts/test-extraction.ts  # Test CSV parsing & Discogs search
 
 # Code Quality
 npm run lint         # Run ESLint (warnings OK for MVP)
@@ -117,12 +121,19 @@ npm test lib/matching/__tests__/engine.test.ts
 
 # Run with coverage
 npm test -- --coverage
+
+# Test data extraction
+npx tsx scripts/test-extraction.ts
 ```
 
 Current test coverage:
 - Matching Engine: 58 tests (all passing)
 - Bandcamp Parser: 8 tests (all passing)
 - Overall: ~85% coverage
+
+### Test Discogs Connection
+Visit http://localhost:3000/(dev)/test-setup after starting the dev server to verify the Discogs API connection.
+Note: Development routes are only available when NODE_ENV is not 'production'.
 
 ## 📚 Documentation
 
