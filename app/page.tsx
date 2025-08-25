@@ -41,7 +41,8 @@ export default function Home() {
     itemCount: number;
   }) => {
     resetSync();
-    await processMatches(data.purchases);
+    const actualToken = getActualToken();
+    await processMatches(data.purchases, actualToken || undefined);
   };
 
 

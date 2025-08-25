@@ -18,7 +18,7 @@ interface ErrorBoundaryState {
 
 export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   private resetTimeoutId: NodeJS.Timeout | null = null;
-  private isMounted: boolean = false; // Start as false, set true in componentDidMount
+  private _isMounted: boolean = false; // Start as false, set true in componentDidMount
 
   constructor(props: ErrorBoundaryProps) {
     super(props);
@@ -42,6 +42,10 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, E
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     const { errorCount, lastErrorTime } = this.state;
     const now = Date.now();
+    
+    // Log error to console for debugging
+    console.error('ErrorBoundary caught error:', error);
+    console.error('Error info:', errorInfo);
     
     // Track error frequency
     const timeSinceLastError = now - lastErrorTime;
@@ -75,11 +79,11 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, E
   }
 
   componentDidMount() {
-    this.isMounted = true;
+    this._isMounted = true;
   }
 
   componentWillUnmount() {
-    this.isMounted = false;
+    this._isMounted = false;
     this.clearAutoResetTimeout();
   }
 
@@ -95,7 +99,7 @@ export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, E
     
     this.resetTimeoutId = setTimeout(() => {
       // Only reset if component is still mounted and timeout wasn't cleared
-      if (this.isMounted && this.resetTimeoutId) {
+      if (this._isMounted && this.resetTimeoutId) {
         this.reset();
       }
     }, 10000); // Reduced to 10 seconds for better UX

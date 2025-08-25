@@ -26,6 +26,18 @@ const MatchRequestSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // Get token from header
+    const token = request.headers.get('x-discogs-token');
+    logger.info('Match API called', { hasToken: !!token });
+    
+    if (!token) {
+      logger.warn('No Discogs token provided in request');
+      return NextResponse.json({
+        success: false,
+        error: 'Discogs token is required'
+      }, { status: 401 });
+    }
+    
     // Parse and validate request body
     const body = await request.json();
     const validated = MatchRequestSchema.parse(body);
@@ -61,7 +73,7 @@ export async function POST(request: NextRequest) {
       format: searchQuery.format
     });
     
-    const discogsClient = getDiscogsClient();
+    const discogsClient = getDiscogsClient(token);
     const releases = await discogsClient.searchReleases(searchQuery);
     
     // Perform matching
@@ -81,9 +93,34 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
     
+    // Transform the result to match the expected format
+    const matchResult = {
+      bandcampItem: {
+        artist: purchase.artist,
+        itemTitle: purchase.itemTitle,
+        itemUrl: purchase.itemUrl,
+        purchaseDate: purchase.purchaseDate,
+        format: purchase.format
+      },
+      discogsMatch: result.bestMatch ? {
+        id: result.bestMatch.release.id,
+        title: result.bestMatch.release.title,
+        artists_sort: result.bestMatch.release.artists_sort,
+        year: result.bestMatch.release.year,
+        resource_url: result.bestMatch.release.resource_url,
+        uri: result.bestMatch.release.uri,
+        formats: result.bestMatch.release.formats
+      } : null,
+      confidence: result.bestMatch?.confidence || 0,
+      reasoning: result.bestMatch ? [
+        `Match type: ${result.bestMatch.matchType}`,
+        `Status: ${result.status}`
+      ] : ['No match found']
+    };
+    
     return NextResponse.json({
       success: true,
-      result
+      result: matchResult
     });
     
   } catch (error) {

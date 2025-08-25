@@ -22,9 +22,12 @@ async function handler(request: NextRequest) {
 
     // Parse and validate request
     const body = await request.json();
+    console.log('Sync API received:', JSON.stringify(body, null, 2));
+    
     const validated = syncSchema.safeParse(body);
     
     if (!validated.success) {
+      console.error('Sync validation failed:', validated.error.flatten());
       return NextResponse.json(
         { error: 'Invalid request data', details: validated.error.flatten() },
         { status: 400 }

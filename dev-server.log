@@ -1,0 +1,1491 @@
+
+> bc-dc-sync@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.5.0
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.47:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1208ms
+ ○ Compiling / ...
+ ✓ Compiled / in 2.1s (662 modules)
+ ⨯ TypeError: Cannot set property isMounted of #<Component> which has only a getter
+    at new ErrorBoundary (app/components/ErrorBoundary.tsx:21:11)
+  19 | export default class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  20 |   private resetTimeoutId: NodeJS.Timeout | null = null;
+> 21 |   private isMounted: boolean = false; // Start as false, set true in componentDidMount
+     |           ^
+  22 |
+  23 |   constructor(props: ErrorBoundaryProps) {
+  24 |     super(props); {
+  digest: '1198559022'
+}
+ GET / 500 in 2573ms
+ ✓ Compiled in 217ms (644 modules)
+ ✓ Compiled in 126ms (644 modules)
+ ✓ Compiled in 150ms (644 modules)
+ GET / 200 in 152ms
+ GET / 200 in 22ms
+ GET / 200 in 35ms
+ ○ Compiling /api/sync ...
+ ✓ Compiled /api/sync in 678ms (853 modules)
+[INFO] Rate limiter initialized: 48 requests per 60000ms
+[ERROR] Discogs connection failed: Error [AxiosError]: Request failed with status code 401
+    at async eval (lib/discogs/client.ts:35:26)
+    at async eval (lib/discogs/rate-limiter.ts:69:18)
+    at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+    at async handler (app/api/sync/route.ts:45:24)
+    at async eval (lib/api/middleware.ts:269:32)
+  33 |       try {
+  34 |         // Test with identity endpoint (always available)
+> 35 |         const response = await this.client.get('/oauth/identity');
+     |                          ^
+  36 |         return { 
+  37 |           success: true, 
+  38 |           username: response.data.username, {
+  code: 'ERR_BAD_REQUEST',
+  config: [Object],
+  request: [ClientRequest],
+  response: [Object],
+  status: 401,
+  constructor: [Function],
+  toJSON: [Function: toJSON]
+}
+ POST /api/sync 401 in 1132ms
+[ERROR] Discogs connection failed: Error [AxiosError]: Request failed with status code 401
+    at async eval (lib/discogs/client.ts:35:26)
+    at async eval (lib/discogs/rate-limiter.ts:69:18)
+    at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+    at async handler (app/api/sync/route.ts:45:24)
+    at async eval (lib/api/middleware.ts:269:32)
+  33 |       try {
+  34 |         // Test with identity endpoint (always available)
+> 35 |         const response = await this.client.get('/oauth/identity');
+     |                          ^
+  36 |         return { 
+  37 |           success: true, 
+  38 |           username: response.data.username, {
+  code: 'ERR_BAD_REQUEST',
+  config: [Object],
+  request: [ClientRequest],
+  response: [Object],
+  status: 401,
+  constructor: [Function],
+  toJSON: [Function: toJSON]
+}
+ POST /api/sync 401 in 290ms
+[ERROR] Discogs connection failed: Error [AxiosError]: Request failed with status code 401
+    at async eval (lib/discogs/client.ts:35:26)
+    at async eval (lib/discogs/rate-limiter.ts:69:18)
+    at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+    at async handler (app/api/sync/route.ts:45:24)
+    at async eval (lib/api/middleware.ts:269:32)
+  33 |       try {
+  34 |         // Test with identity endpoint (always available)
+> 35 |         const response = await this.client.get('/oauth/identity');
+     |                          ^
+  36 |         return { 
+  37 |           success: true, 
+  38 |           username: response.data.username, {
+  code: 'ERR_BAD_REQUEST',
+  config: [Object],
+  request: [ClientRequest],
+  response: [Object],
+  status: 401,
+  constructor: [Function],
+  toJSON: [Function: toJSON]
+}
+ POST /api/sync 401 in 255ms
+[DEBUG] Rate limit window reset
+ POST /api/sync 200 in 240ms
+ ✓ Compiled /api/upload in 262ms (721 modules)
+[INFO] Processing CSV upload { filename: 'bandcamp-test.csv', size: 2567 }
+[INFO] Parsed 20 purchases (0 rows skipped, 0 duplicates removed)
+[INFO] CSV parsed successfully { totalPurchases: 20, errors: 0 }
+ POST /api/upload 200 in 343ms
+ ✓ Compiled /api/match in 158ms (860 modules)
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "object",
+      "code": "invalid_type",
+      "path": [
+        "purchase"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 269ms
+ GET / 200 in 139ms
+ ✓ Compiled /favicon.ico in 98ms (607 modules)
+ ✓ Compiled (609 modules)
+ GET /favicon.ico 200 in 222ms
+[INFO] Rate limiter initialized: 48 requests per 60000ms
+ POST /api/sync 200 in 771ms
+[INFO] Processing CSV upload { filename: 'bandcamp-test.csv', size: 2567 }
+[INFO] Parsed 20 purchases (0 rows skipped, 0 duplicates removed)
+[INFO] CSV parsed successfully { totalPurchases: 20, errors: 0 }
+ POST /api/upload 200 in 30ms
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "object",
+      "code": "invalid_type",
+      "path": [
+        "purchase"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 81ms
+ ✓ Compiled in 430ms (645 modules)
+ GET / 200 in 109ms
+ ✓ Compiled in 163ms (645 modules)
+ GET / 200 in 64ms
+ ✓ Compiled in 107ms (645 modules)
+ GET / 200 in 38ms
+ GET / 200 in 109ms
+ ✓ Compiled /api/sync in 179ms (390 modules)
+ ✓ Compiled (597 modules)
+[INFO] Rate limiter initialized: 48 requests per 60000ms
+ GET /favicon.ico 200 in 604ms
+ POST /api/sync 200 in 851ms
+ ✓ Compiled /api/upload in 153ms (602 modules)
+[INFO] Processing CSV upload { filename: 'bandcamp-test.csv', size: 2567 }
+[INFO] Parsed 20 purchases (0 rows skipped, 0 duplicates removed)
+[INFO] CSV parsed successfully { totalPurchases: 20, errors: 0 }
+ POST /api/upload 200 in 209ms
+ ✓ Compiled /api/match in 103ms (609 modules)
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemTitle"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemUrl"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "purchaseDate"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 202ms
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemTitle"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemUrl"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "purchaseDate"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 56ms
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemTitle"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemUrl"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "purchaseDate"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 49ms
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemTitle"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemUrl"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "purchaseDate"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 45ms
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemTitle"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemUrl"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "purchaseDate"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 42ms
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemTitle"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemUrl"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "purchaseDate"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 43ms
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemTitle"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemUrl"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "purchaseDate"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 50ms
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemTitle"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemUrl"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "purchaseDate"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 43ms
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemTitle"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemUrl"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "purchaseDate"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 45ms
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemTitle"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemUrl"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "purchaseDate"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 51ms
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemTitle"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemUrl"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "purchaseDate"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 44ms
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemTitle"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemUrl"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "purchaseDate"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 45ms
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemTitle"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemUrl"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "purchaseDate"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 44ms
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemTitle"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemUrl"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "purchaseDate"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 45ms
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemTitle"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemUrl"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "purchaseDate"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 43ms
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemTitle"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemUrl"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "purchaseDate"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 42ms
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemTitle"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemUrl"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "purchaseDate"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 101ms
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemTitle"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemUrl"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "purchaseDate"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 52ms
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemTitle"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemUrl"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "purchaseDate"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 45ms
+[ERROR] Match API error {
+  error: Error [ZodError]: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemTitle"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "itemUrl"
+      ],
+      "message": "Invalid input"
+    },
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "purchase",
+        "purchaseDate"
+      ],
+      "message": "Invalid input"
+    }
+  ]
+      at POST (app/api/match/route.ts:31:42)
+    29 |     // Parse and validate request body
+    30 |     const body = await request.json();
+  > 31 |     const validated = MatchRequestSchema.parse(body);
+       |                                          ^
+    32 |     
+    33 |     // Transform and validate purchase data
+    34 |     const purchaseData = {
+}
+ POST /api/match 400 in 44ms
+ ✓ Compiled in 269ms (645 modules)
+ GET / 200 in 106ms
+ GET / 200 in 96ms
+ ✓ Compiled /api/sync in 67ms (390 modules)
+ ✓ Compiled (597 modules)
+[INFO] Rate limiter initialized: 48 requests per 60000ms
+ GET /favicon.ico 200 in 284ms
+ POST /api/sync 200 in 493ms
+ ✓ Compiled /api/upload in 99ms (602 modules)
+[INFO] Processing CSV upload { filename: 'bandcamp-test.csv', size: 2567 }
+[INFO] Parsed 20 purchases (0 rows skipped, 0 duplicates removed)
+[INFO] CSV parsed successfully { totalPurchases: 20, errors: 0 }
+ POST /api/upload 200 in 160ms
+ ✓ Compiled /api/match in 228ms (609 modules)
+[INFO] Matching request { artist: 'Radiohead', title: 'In Rainbows', format: undefined }
+[INFO] Rate limiter initialized: 48 requests per 60000ms
+[INFO] Searching Discogs for: Radiohead - In Rainbows
+[ERROR] Discogs authentication failed. Check your API token. undefined
+[ERROR] Match API error {
+  error: Error: Authentication failed
+      at eval (lib/discogs/client.ts:98:19)
+      at async eval (lib/discogs/rate-limiter.ts:69:18)
+      at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+      at async POST (app/api/match/route.ts:65:22)
+     96 |           if (error.response?.status === 401) {
+     97 |             logger.error('Discogs authentication failed. Check your API token.');
+  >  98 |             throw new Error('Authentication failed');
+        |                   ^
+     99 |           }
+    100 |           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
+    101 |           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
+}
+ POST /api/match 500 in 529ms
+[INFO] Matching request {
+  artist: 'Boards of Canada',
+  title: 'Music Has The Right to Children',
+  format: 'Vinyl'
+}
+[INFO] Searching Discogs for: Boards of Canada - Music Has The Right to Children
+[ERROR] Discogs authentication failed. Check your API token. undefined
+[ERROR] Match API error {
+  error: Error: Authentication failed
+      at eval (lib/discogs/client.ts:98:19)
+      at async eval (lib/discogs/rate-limiter.ts:69:18)
+      at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+      at async POST (app/api/match/route.ts:65:22)
+     96 |           if (error.response?.status === 401) {
+     97 |             logger.error('Discogs authentication failed. Check your API token.');
+  >  98 |             throw new Error('Authentication failed');
+        |                   ^
+     99 |           }
+    100 |           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
+    101 |           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
+}
+ POST /api/match 500 in 244ms
+[INFO] Matching request {
+  artist: 'Godspeed You Black Emperor',
+  title: 'Lift Your Skinny Fists Like Antennas to Heaven',
+  format: 'CD'
+}
+[INFO] Searching Discogs for: Godspeed You Black Emperor - Lift Your Skinny Fists Like Antennas to Heaven
+[ERROR] Discogs authentication failed. Check your API token. undefined
+[ERROR] Match API error {
+  error: Error: Authentication failed
+      at eval (lib/discogs/client.ts:98:19)
+      at async eval (lib/discogs/rate-limiter.ts:69:18)
+      at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+      at async POST (app/api/match/route.ts:65:22)
+     96 |           if (error.response?.status === 401) {
+     97 |             logger.error('Discogs authentication failed. Check your API token.');
+  >  98 |             throw new Error('Authentication failed');
+        |                   ^
+     99 |           }
+    100 |           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
+    101 |           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
+}
+ POST /api/match 500 in 224ms
+[INFO] Matching request {
+  artist: 'Aphex Twin',
+  title: 'Selected Ambient Works 85-92',
+  format: undefined
+}
+[INFO] Searching Discogs for: Aphex Twin - Selected Ambient Works 85-92
+[ERROR] Discogs authentication failed. Check your API token. undefined
+[ERROR] Match API error {
+  error: Error: Authentication failed
+      at eval (lib/discogs/client.ts:98:19)
+      at async eval (lib/discogs/rate-limiter.ts:69:18)
+      at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+      at async POST (app/api/match/route.ts:65:22)
+     96 |           if (error.response?.status === 401) {
+     97 |             logger.error('Discogs authentication failed. Check your API token.');
+  >  98 |             throw new Error('Authentication failed');
+        |                   ^
+     99 |           }
+    100 |           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
+    101 |           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
+}
+ POST /api/match 500 in 224ms
+[INFO] Matching request { artist: 'Sigur Rós', title: 'gtis byrjun', format: 'Vinyl' }
+[INFO] Searching Discogs for: Sigur Rós - gtis byrjun
+[ERROR] Discogs authentication failed. Check your API token. undefined
+[ERROR] Match API error {
+  error: Error: Authentication failed
+      at eval (lib/discogs/client.ts:98:19)
+      at async eval (lib/discogs/rate-limiter.ts:69:18)
+      at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+      at async POST (app/api/match/route.ts:65:22)
+     96 |           if (error.response?.status === 401) {
+     97 |             logger.error('Discogs authentication failed. Check your API token.');
+  >  98 |             throw new Error('Authentication failed');
+        |                   ^
+     99 |           }
+    100 |           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
+    101 |           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
+}
+ POST /api/match 500 in 239ms
+[INFO] Matching request {
+  artist: 'Explosions in the Sky',
+  title: 'The Earth Is Not a Cold Dead Place',
+  format: 'CD'
+}
+[INFO] Searching Discogs for: Explosions in the Sky - The Earth Is Not a Cold Dead Place
+[ERROR] Discogs authentication failed. Check your API token. undefined
+[ERROR] Match API error {
+  error: Error: Authentication failed
+      at eval (lib/discogs/client.ts:98:19)
+      at async eval (lib/discogs/rate-limiter.ts:69:18)
+      at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+      at async POST (app/api/match/route.ts:65:22)
+     96 |           if (error.response?.status === 401) {
+     97 |             logger.error('Discogs authentication failed. Check your API token.');
+  >  98 |             throw new Error('Authentication failed');
+        |                   ^
+     99 |           }
+    100 |           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
+    101 |           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
+}
+ POST /api/match 500 in 221ms
+[INFO] Matching request { artist: 'Tim Hecker', title: 'Ravedeath, 1972', format: undefined }
+[INFO] Searching Discogs for: Tim Hecker - Ravedeath, 1972
+[ERROR] Discogs authentication failed. Check your API token. undefined
+[ERROR] Match API error {
+  error: Error: Authentication failed
+      at eval (lib/discogs/client.ts:98:19)
+      at async eval (lib/discogs/rate-limiter.ts:69:18)
+      at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+      at async POST (app/api/match/route.ts:65:22)
+     96 |           if (error.response?.status === 401) {
+     97 |             logger.error('Discogs authentication failed. Check your API token.');
+  >  98 |             throw new Error('Authentication failed');
+        |                   ^
+     99 |           }
+    100 |           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
+    101 |           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
+}
+ POST /api/match 500 in 232ms
+[INFO] Matching request { artist: 'Microphones', title: 'The Glow Pt. 2', format: 'Cassette' }
+[INFO] Searching Discogs for: Microphones - The Glow Pt. 2
+[ERROR] Discogs authentication failed. Check your API token. undefined
+[ERROR] Match API error {
+  error: Error: Authentication failed
+      at eval (lib/discogs/client.ts:98:19)
+      at async eval (lib/discogs/rate-limiter.ts:69:18)
+      at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+      at async POST (app/api/match/route.ts:65:22)
+     96 |           if (error.response?.status === 401) {
+     97 |             logger.error('Discogs authentication failed. Check your API token.');
+  >  98 |             throw new Error('Authentication failed');
+        |                   ^
+     99 |           }
+    100 |           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
+    101 |           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
+}
+ POST /api/match 500 in 500ms
+[INFO] Matching request { artist: 'Swans', title: 'To Be Kind', format: 'Vinyl' }
+[INFO] Searching Discogs for: Swans - To Be Kind
+[ERROR] Discogs authentication failed. Check your API token. undefined
+[ERROR] Match API error {
+  error: Error: Authentication failed
+      at eval (lib/discogs/client.ts:98:19)
+      at async eval (lib/discogs/rate-limiter.ts:69:18)
+      at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+      at async POST (app/api/match/route.ts:65:22)
+     96 |           if (error.response?.status === 401) {
+     97 |             logger.error('Discogs authentication failed. Check your API token.');
+  >  98 |             throw new Error('Authentication failed');
+        |                   ^
+     99 |           }
+    100 |           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
+    101 |           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
+}
+ POST /api/match 500 in 236ms
+[INFO] Matching request {
+  artist: 'Have a Nice Life',
+  title: 'Deathconsciousness',
+  format: undefined
+}
+[DEBUG] Rate limit status { used: 10, remaining: 50, resetTime: '2025-08-25T13:24:15.146Z' }
+[INFO] Searching Discogs for: Have a Nice Life - Deathconsciousness
+[ERROR] Discogs authentication failed. Check your API token. undefined
+[ERROR] Match API error {
+  error: Error: Authentication failed
+      at eval (lib/discogs/client.ts:98:19)
+      at async eval (lib/discogs/rate-limiter.ts:69:18)
+      at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+      at async POST (app/api/match/route.ts:65:22)
+     96 |           if (error.response?.status === 401) {
+     97 |             logger.error('Discogs authentication failed. Check your API token.');
+  >  98 |             throw new Error('Authentication failed');
+        |                   ^
+     99 |           }
+    100 |           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
+    101 |           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
+}
+ POST /api/match 500 in 235ms
+[INFO] Matching request { artist: '666', title: '死神の子守唄', format: undefined }
+[INFO] Searching Discogs for: 666 - 死神の子守唄
+[ERROR] Discogs authentication failed. Check your API token. undefined
+[ERROR] Match API error {
+  error: Error: Authentication failed
+      at eval (lib/discogs/client.ts:98:19)
+      at async eval (lib/discogs/rate-limiter.ts:69:18)
+      at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+      at async POST (app/api/match/route.ts:65:22)
+     96 |           if (error.response?.status === 401) {
+     97 |             logger.error('Discogs authentication failed. Check your API token.');
+  >  98 |             throw new Error('Authentication failed');
+        |                   ^
+     99 |           }
+    100 |           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
+    101 |           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
+}
+ POST /api/match 500 in 239ms
+[INFO] Matching request { artist: 'Various Artists', title: 'Brainfeeder X', format: 'Vinyl' }
+[INFO] Searching Discogs for: Various Artists - Brainfeeder X
+[ERROR] Discogs authentication failed. Check your API token. undefined
+[ERROR] Match API error {
+  error: Error: Authentication failed
+      at eval (lib/discogs/client.ts:98:19)
+      at async eval (lib/discogs/rate-limiter.ts:69:18)
+      at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+      at async POST (app/api/match/route.ts:65:22)
+     96 |           if (error.response?.status === 401) {
+     97 |             logger.error('Discogs authentication failed. Check your API token.');
+  >  98 |             throw new Error('Authentication failed');
+        |                   ^
+     99 |           }
+    100 |           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
+    101 |           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
+}
+ POST /api/match 500 in 240ms
+[INFO] Matching request {
+  artist: 'King Gizzard & The Lizard Wizard',
+  title: 'Nonagon Infinity',
+  format: 'CD'
+}
+[INFO] Searching Discogs for: King Gizzard & The Lizard Wizard - Nonagon Infinity
+[ERROR] Discogs authentication failed. Check your API token. undefined
+[ERROR] Match API error {
+  error: Error: Authentication failed
+      at eval (lib/discogs/client.ts:98:19)
+      at async eval (lib/discogs/rate-limiter.ts:69:18)
+      at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+      at async POST (app/api/match/route.ts:65:22)
+     96 |           if (error.response?.status === 401) {
+     97 |             logger.error('Discogs authentication failed. Check your API token.');
+  >  98 |             throw new Error('Authentication failed');
+        |                   ^
+     99 |           }
+    100 |           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
+    101 |           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
+}
+ POST /api/match 500 in 220ms
+[INFO] Matching request { artist: 'Death Grips', title: 'The Money Store', format: undefined }
+[INFO] Searching Discogs for: Death Grips - The Money Store
+[ERROR] Discogs authentication failed. Check your API token. undefined
+[ERROR] Match API error {
+  error: Error: Authentication failed
+      at eval (lib/discogs/client.ts:98:19)
+      at async eval (lib/discogs/rate-limiter.ts:69:18)
+      at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+      at async POST (app/api/match/route.ts:65:22)
+     96 |           if (error.response?.status === 401) {
+     97 |             logger.error('Discogs authentication failed. Check your API token.');
+  >  98 |             throw new Error('Authentication failed');
+        |                   ^
+     99 |           }
+    100 |           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
+    101 |           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
+}
+ POST /api/match 500 in 218ms
+[INFO] Matching request {
+  artist: 'Car Seat Headrest',
+  title: 'Twin Fantasy (Face to Face)',
+  format: 'Vinyl'
+}
+[INFO] Searching Discogs for: Car Seat Headrest - Twin Fantasy (Face to Face)
+[ERROR] Discogs authentication failed. Check your API token. undefined
+[ERROR] Match API error {
+  error: Error: Authentication failed
+      at eval (lib/discogs/client.ts:98:19)
+      at async eval (lib/discogs/rate-limiter.ts:69:18)
+      at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+      at async POST (app/api/match/route.ts:65:22)
+     96 |           if (error.response?.status === 401) {
+     97 |             logger.error('Discogs authentication failed. Check your API token.');
+  >  98 |             throw new Error('Authentication failed');
+        |                   ^
+     99 |           }
+    100 |           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
+    101 |           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
+}
+ POST /api/match 500 in 219ms
+[INFO] Matching request {
+  artist: 'Caretaker',
+  title: 'An Empty Bliss Beyond This World',
+  format: undefined
+}
+[INFO] Searching Discogs for: Caretaker - An Empty Bliss Beyond This World
+[ERROR] Discogs authentication failed. Check your API token. undefined
+[ERROR] Match API error {
+  error: Error: Authentication failed
+      at eval (lib/discogs/client.ts:98:19)
+      at async eval (lib/discogs/rate-limiter.ts:69:18)
+      at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+      at async POST (app/api/match/route.ts:65:22)
+     96 |           if (error.response?.status === 401) {
+     97 |             logger.error('Discogs authentication failed. Check your API token.');
+  >  98 |             throw new Error('Authentication failed');
+        |                   ^
+     99 |           }
+    100 |           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
+    101 |           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
+}
+ POST /api/match 500 in 224ms
+[INFO] Matching request { artist: 'Liturgy', title: 'Aesthethica', format: 'CD' }
+[INFO] Searching Discogs for: Liturgy - Aesthethica
+[ERROR] Discogs authentication failed. Check your API token. undefined
+[ERROR] Match API error {
+  error: Error: Authentication failed
+      at eval (lib/discogs/client.ts:98:19)
+      at async eval (lib/discogs/rate-limiter.ts:69:18)
+      at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+      at async POST (app/api/match/route.ts:65:22)
+     96 |           if (error.response?.status === 401) {
+     97 |             logger.error('Discogs authentication failed. Check your API token.');
+  >  98 |             throw new Error('Authentication failed');
+        |                   ^
+     99 |           }
+    100 |           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
+    101 |           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
+}
+ POST /api/match 500 in 227ms
+[INFO] Matching request {
+  artist: 'Lightning Bolt',
+  title: 'Wonderful Rainbow',
+  format: 'Vinyl'
+}
+[INFO] Searching Discogs for: Lightning Bolt - Wonderful Rainbow
+[ERROR] Discogs authentication failed. Check your API token. undefined
+[ERROR] Match API error {
+  error: Error: Authentication failed
+      at eval (lib/discogs/client.ts:98:19)
+      at async eval (lib/discogs/rate-limiter.ts:69:18)
+      at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+      at async POST (app/api/match/route.ts:65:22)
+     96 |           if (error.response?.status === 401) {
+     97 |             logger.error('Discogs authentication failed. Check your API token.');
+  >  98 |             throw new Error('Authentication failed');
+        |                   ^
+     99 |           }
+    100 |           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
+    101 |           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
+}
+ POST /api/match 500 in 234ms
+[INFO] Matching request { artist: 'Xiu Xiu', title: 'A Promise', format: undefined }
+[INFO] Searching Discogs for: Xiu Xiu - A Promise
+[ERROR] Discogs authentication failed. Check your API token. undefined
+[ERROR] Match API error {
+  error: Error: Authentication failed
+      at eval (lib/discogs/client.ts:98:19)
+      at async eval (lib/discogs/rate-limiter.ts:69:18)
+      at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+      at async POST (app/api/match/route.ts:65:22)
+     96 |           if (error.response?.status === 401) {
+     97 |             logger.error('Discogs authentication failed. Check your API token.');
+  >  98 |             throw new Error('Authentication failed');
+        |                   ^
+     99 |           }
+    100 |           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
+    101 |           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
+}
+ POST /api/match 500 in 225ms
+[INFO] Matching request {
+  artist: 'Mount Eerie',
+  title: 'A Crow Looked at Me',
+  format: 'Vinyl'
+}
+[DEBUG] Rate limit status { used: 20, remaining: 40, resetTime: '2025-08-25T13:24:15.146Z' }
+[INFO] Searching Discogs for: Mount Eerie - A Crow Looked at Me
+[ERROR] Discogs authentication failed. Check your API token. undefined
+[ERROR] Match API error {
+  error: Error: Authentication failed
+      at eval (lib/discogs/client.ts:98:19)
+      at async eval (lib/discogs/rate-limiter.ts:69:18)
+      at async DiscogsRateLimiter.execute (lib/discogs/rate-limiter.ts:56:24)
+      at async POST (app/api/match/route.ts:65:22)
+     96 |           if (error.response?.status === 401) {
+     97 |             logger.error('Discogs authentication failed. Check your API token.');
+  >  98 |             throw new Error('Authentication failed');
+        |                   ^
+     99 |           }
+    100 |           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
+    101 |           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
+}
+ POST /api/match 500 in 221ms
+ GET / 200 in 145ms
+ GET /favicon.ico 200 in 13ms
+[DEBUG] Rate limit window reset
+ POST /api/sync 200 in 311ms
+ ✓ Compiled in 384ms (645 modules)
+ GET / 200 in 105ms
+ ✓ Compiled in 80ms (272 modules)
+ GET / 200 in 15ms
+ ✓ Compiled in 69ms (272 modules)
+ GET / 200 in 69ms
+ ✓ Compiled in 74ms (272 modules)
+ GET / 200 in 19ms
+ ✓ Compiled in 126ms (645 modules)
+ GET / 200 in 94ms
+ ✓ Compiled in 109ms (645 modules)
+ GET / 200 in 38ms
+ ✓ Compiled in 348ms (645 modules)
+ GET / 200 in 51ms
+ GET / 200 in 119ms
+ ✓ Compiled /favicon.ico in 204ms (390 modules)
+ GET /favicon.ico 200 in 269ms
+ GET / 200 in 124ms
+ GET /favicon.ico 200 in 5ms
+ GET / 200 in 29ms
+ GET /favicon.ico 200 in 5ms
+ GET / 200 in 38ms
+ GET /favicon.ico 200 in 6ms
+ GET / 200 in 48ms
+ GET /favicon.ico 200 in 5ms
+ GET / 200 in 29ms
+ GET /favicon.ico 200 in 5ms
+ GET / 200 in 37ms
+ GET /favicon.ico 200 in 5ms
+ GET / 200 in 33ms
+ GET /favicon.ico 200 in 5ms
+ GET / 200 in 31ms
+ GET /favicon.ico 200 in 6ms
+ GET / 200 in 33ms
+ GET /favicon.ico 200 in 5ms
+ GET / 200 in 31ms
+ GET /favicon.ico 200 in 4ms
+ GET / 200 in 33ms
+ GET /favicon.ico 200 in 7ms
+ GET / 200 in 34ms
+ GET /favicon.ico 200 in 4ms
+ GET / 200 in 52ms
+ GET /favicon.ico 200 in 6ms
+ GET / 200 in 30ms
+ GET /favicon.ico 200 in 5ms
+ GET / 200 in 32ms
+ GET /favicon.ico 200 in 5ms
+ ✓ Compiled in 156ms (272 modules)
+ ✓ Compiled in 101ms (272 modules)
+ ✓ Compiled in 347ms (645 modules)
+ ✓ Compiled in 131ms (645 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/cache/webpack/client-development/5.pack.gz_' -> '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/cache/webpack/client-development/5.pack.gz'
+ ✓ Compiled in 216ms (645 modules)
+ ✓ Compiled in 246ms (645 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/cache/webpack/client-development/0.pack.gz_' -> '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/cache/webpack/client-development/0.pack.gz'
+ ✓ Compiled in 84ms (272 modules)
+ ✓ Compiled in 82ms (272 modules)
+ ✓ Compiled in 69ms (272 modules)
+ ✓ Compiled in 66ms (272 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/cache/webpack/client-development/0.pack.gz_' -> '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/cache/webpack/client-development/0.pack.gz'
+ ✓ Compiled in 85ms (272 modules)
+ ✓ Compiled in 111ms (272 modules)
+ ✓ Compiled in 137ms (272 modules)
+ ✓ Compiled in 80ms (272 modules)
+ ✓ Compiled in 61ms (272 modules)
+ ✓ Compiled in 78ms (272 modules)
+ ✓ Compiled in 80ms (272 modules)
+ ✓ Compiled in 92ms (272 modules)
+ ✓ Compiled in 98ms (272 modules)
+ ✓ Compiled in 113ms (272 modules)
+ ✓ Compiled in 71ms (272 modules)
+ ✓ Compiled in 70ms (272 modules)
+ ✓ Compiled in 72ms (272 modules)
+ ✓ Compiled in 279ms (645 modules)
+ ✓ Compiled in 108ms (645 modules)
+ ✓ Compiled in 166ms (645 modules)
+ ✓ Compiled in 134ms (645 modules)
+ ✓ Compiled in 436ms (645 modules)
+ ✓ Compiled in 265ms (645 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/cache/webpack/client-development/1.pack.gz_' -> '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/cache/webpack/client-development/1.pack.gz'
+ ✓ Compiled in 237ms (645 modules)
+ ✓ Compiled in 116ms (645 modules)
+ ✓ Compiled in 105ms (272 modules)
+ ✓ Compiled in 121ms (272 modules)
+ ✓ Compiled in 237ms (645 modules)
+ ✓ Compiled in 63ms (272 modules)
+ ✓ Compiled in 101ms (272 modules)
+ ✓ Compiled in 116ms (272 modules)
+ ✓ Compiled in 70ms (272 modules)
+ ✓ Compiled in 80ms (272 modules)
+ ✓ Compiled in 74ms (272 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/cache/webpack/client-development/0.pack.gz_' -> '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/cache/webpack/client-development/0.pack.gz'

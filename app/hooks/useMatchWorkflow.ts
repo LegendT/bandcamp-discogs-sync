@@ -9,35 +9,126 @@ export function useMatchWorkflow() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const processMatches = useCallback(async (purchases: any[]) => {
+  const processMatches = useCallback(async (purchases: any[], discogsToken?: string) => {
     setIsProcessing(true);
     setError(null);
     setSelectedMatches(new Set());
 
     try {
-      const matchResponse = await fetch('/api/match', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ purchases }),
-      });
+      // Process purchases one by one and collect results
+      const allMatches: MatchResult[] = [];
+      
+      for (const purchase of purchases) {
+        try {
+          // Debug log to see the structure
+          console.log('Processing purchase:', purchase);
+          
+          const headers: HeadersInit = { 'Content-Type': 'application/json' };
+          if (discogsToken) {
+            headers['x-discogs-token'] = discogsToken;
+          }
+          
+          const matchResponse = await fetch('/api/match', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ 
+              purchase: {
+                artist: purchase.artist,
+                itemTitle: purchase.item_title || purchase.itemTitle,
+                itemUrl: purchase.item_url || purchase.itemUrl,
+                purchaseDate: purchase.purchase_date || purchase.purchaseDate,
+                format: purchase.format,
+                rawFormat: purchase.raw_format || purchase.rawFormat || purchase.format || ''
+              }
+            }),
+          });
 
-      if (!matchResponse.ok) {
-        throw new Error('Failed to process matches');
+          if (!matchResponse.ok) {
+            const title = purchase.item_title || purchase.itemTitle || 'Unknown';
+            console.error(`Failed to match ${title}`);
+            // Add a no-match result for failed requests
+            allMatches.push({
+              bandcampItem: {
+                artist: purchase.artist || 'Unknown Artist',
+                itemTitle: purchase.item_title || purchase.itemTitle || 'Unknown Title',
+                itemUrl: purchase.item_url || purchase.itemUrl || '',
+                purchaseDate: purchase.purchase_date || purchase.purchaseDate || new Date().toISOString(),
+                format: purchase.format || 'Unknown'
+              },
+              discogsMatch: null,
+              confidence: 0,
+              reasoning: ['Failed to fetch matches from API']
+            });
+            continue;
+          }
+
+          const matchData = await matchResponse.json();
+          if (matchData.success && matchData.result) {
+            // Ensure the result has the required structure
+            const result = matchData.result;
+            if (result.bandcampItem) {
+              allMatches.push(result);
+            } else {
+              // Fallback if result doesn't have expected structure
+              allMatches.push({
+                bandcampItem: {
+                  artist: purchase.artist || 'Unknown Artist',
+                  itemTitle: purchase.item_title || purchase.itemTitle || 'Unknown Title',
+                  itemUrl: purchase.item_url || purchase.itemUrl || '',
+                  purchaseDate: purchase.purchase_date || purchase.purchaseDate || new Date().toISOString(),
+                  format: purchase.format || 'Unknown'
+                },
+                discogsMatch: null,
+                confidence: 0,
+                reasoning: ['Invalid match result structure']
+              });
+            }
+          } else {
+            // API returned error or no result
+            allMatches.push({
+              bandcampItem: {
+                artist: purchase.artist || 'Unknown Artist',
+                itemTitle: purchase.item_title || purchase.itemTitle || 'Unknown Title',
+                itemUrl: purchase.item_url || purchase.itemUrl || '',
+                purchaseDate: purchase.purchase_date || purchase.purchaseDate || new Date().toISOString(),
+                format: purchase.format || 'Unknown'
+              },
+              discogsMatch: null,
+              confidence: 0,
+              reasoning: [matchData.error || 'No match result returned']
+            });
+          }
+        } catch (err) {
+          const title = purchase.item_title || purchase.itemTitle || 'Unknown';
+          console.error(`Error matching ${title}:`, err);
+          // Add a no-match result for errors
+          allMatches.push({
+            bandcampItem: {
+              artist: purchase.artist || 'Unknown Artist',
+              itemTitle: purchase.item_title || purchase.itemTitle || 'Unknown Title',
+              itemUrl: purchase.item_url || purchase.itemUrl || '',
+              purchaseDate: purchase.purchase_date || purchase.purchaseDate || new Date().toISOString(),
+              format: purchase.format || 'Unknown'
+            },
+            discogsMatch: null,
+            confidence: 0,
+            reasoning: ['Error during matching process']
+          });
+        }
       }
 
-      const matchResult = await matchResponse.json();
-      setMatches(matchResult.matches);
+      setMatches(allMatches);
 
       // Pre-select high confidence matches
       const preSelected = new Set<number>();
-      matchResult.matches.forEach((match: MatchResult, index: number) => {
-        if (match.confidence >= 0.8 && match.discogsMatch) {
+      allMatches.forEach((match: MatchResult, index: number) => {
+        if (match.confidence >= 80 && match.discogsMatch) {
           preSelected.add(index);
         }
       });
       setSelectedMatches(preSelected);
 
-      return matchResult.matches;
+      return allMatches;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred';
       setError(errorMessage);
@@ -89,9 +180,9 @@ export function useMatchWorkflow() {
     const withMatches = matches.filter(m => m.discogsMatch);
     const noMatches = matches.filter(m => !m.discogsMatch);
     
-    const highConfidence = withMatches.filter(m => m.confidence >= 0.8).length;
-    const mediumConfidence = withMatches.filter(m => m.confidence >= 0.6 && m.confidence < 0.8).length;
-    const lowConfidence = withMatches.filter(m => m.confidence < 0.6).length;
+    const highConfidence = withMatches.filter(m => m.confidence >= 80).length;
+    const mediumConfidence = withMatches.filter(m => m.confidence >= 60 && m.confidence < 80).length;
+    const lowConfidence = withMatches.filter(m => m.confidence < 60).length;
 
     return {
       total: matches.length,

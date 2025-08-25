@@ -66,14 +66,13 @@ export class DiscogsClient {
 
         // Build search query
         if (query.artist && query.title) {
-          // Search by both artist and title
+          // Use general query for better results
           params.q = `${query.artist} ${query.title}`;
-          params.artist = query.artist;
-          params.release_title = query.title;
+          // Don't use specific fields as they're too restrictive
         } else if (query.artist) {
-          params.artist = query.artist;
+          params.q = query.artist;
         } else if (query.title) {
-          params.release_title = query.title;
+          params.q = query.title;
         }
 
         // Add format filter if specified
@@ -83,8 +82,22 @@ export class DiscogsClient {
 
         // Log search without sensitive data
         logger.info(`Searching Discogs for: ${query.artist || 'any artist'} - ${query.title || 'any title'}`);
+        logger.info('Discogs search params:', params);
         
         const response = await this.client.get<DiscogsSearchResult>('/database/search', { params });
+        
+        // Log response details for debugging
+        logger.info('Discogs search response', {
+          status: response.status,
+          resultsCount: response.data.results?.length || 0,
+          hasResults: !!response.data.results,
+          firstResult: response.data.results?.[0] ? {
+            id: response.data.results[0].id,
+            title: response.data.results[0].title,
+            artists_sort: response.data.results[0].artists_sort,
+            hasArtistsSort: !!response.data.results[0].artists_sort
+          } : null
+        });
         
         return response.data.results || [];
       } catch (error) {
@@ -97,6 +110,14 @@ export class DiscogsClient {
             logger.error('Discogs authentication failed. Check your API token.');
             throw new Error('Authentication failed');
           }
+          
+          // Check if response is HTML (common when hitting wrong endpoint or rate limits)
+          const contentType = error.response?.headers?.['content-type'];
+          if (contentType && contentType.includes('text/html')) {
+            logger.error('Discogs returned HTML instead of JSON - possible rate limit or wrong endpoint');
+            throw new Error('Invalid response from Discogs API');
+          }
+          
           logger.error(`Discogs search failed: ${error.response?.data?.message || error.message}`);
           throw new Error(`Search failed: ${error.response?.data?.message || error.message}`);
         } else {

@@ -18,7 +18,7 @@ Automatically sync your Bandcamp purchases to your Discogs collection with 92%+ 
 3. **Start development server:**
    ```bash
    npm run dev
-   # Visit http://localhost:3000
+   # Visit http://localhost:3001 (or 3000 if available)
    ```
 
 4. **Get your Discogs token:**
@@ -55,7 +55,7 @@ tests/              # Jest integration tests
 
 ```bash
 # Development
-npm run dev          # Start Next.js dev server (http://localhost:3000)
+npm run dev          # Start Next.js dev server (http://localhost:3001)
 
 # Testing
 npm test             # Run all tests

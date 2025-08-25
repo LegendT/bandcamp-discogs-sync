@@ -21,13 +21,16 @@ export function useSyncWorkflow() {
     setError(null);
 
     try {
+      const payload = { matches: items.slice(0, 20) };
+      console.log('Sync payload:', JSON.stringify(payload, null, 2));
+      
       const syncResponse = await fetch('/api/sync', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'X-Discogs-Token': token
         },
-        body: JSON.stringify({ matches: items.slice(0, 20) }), // Limit to 20
+        body: JSON.stringify(payload), // Limit to 20
       });
 
       const syncData = await syncResponse.json();

@@ -504,3 +504,70 @@ Import trace for requested module:
  ✓ Compiled in 132ms (421 modules)
  ✓ Compiled in 75ms (421 modules)
  ✓ Compiled in 71ms (421 modules)
+ ✓ Compiled /_not-found in 498ms (881 modules)
+ ⨯ Error: ENOENT: no such file or directory, open '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/server/vendor-chunks/next.js'
+    at <unknown> (.next/server/app/_not-found/page.js:271:47)
+    at Object.<anonymous> (.next/server/app/_not-found/page.js:274:3) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/server/vendor-chunks/next.js'
+}
+ ✓ Compiled /_error in 389ms (974 modules)
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 1068ms
+ GET / 500 in 29ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/server/app/page.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/server/app/page.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: ENOENT: no such file or directory, open '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/server/app/page.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/server/app/page.js',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/server/pages/_document.js'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/anthonygeorge/Projects/B2D/bc-dc-sync/.next/server/pages/_document.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ GET / 500 in 83ms
+ GET / 500 in 27ms
+[?25h

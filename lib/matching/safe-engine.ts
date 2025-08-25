@@ -49,7 +49,8 @@ function validateReleases(releases: any[]): releases is DiscogsRelease[] {
     if (!release || typeof release !== 'object') return false;
     if (!release.id || typeof release.id !== 'number') return false;
     if (!release.title || typeof release.title !== 'string') return false;
-    if (!release.artists_sort || typeof release.artists_sort !== 'string') return false;
+    // The search API doesn't always return artists_sort, but title contains artist info
+    // We'll be more flexible here since the matching engine handles missing data
     return true;
   });
 }

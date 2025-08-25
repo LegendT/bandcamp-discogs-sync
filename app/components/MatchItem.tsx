@@ -11,9 +11,19 @@ interface MatchItemProps {
 }
 
 function MatchItem({ match, index, isSelected, onToggle }: MatchItemProps) {
+  // Guard against missing data
+  if (!match || !match.bandcampItem) {
+    console.error('Invalid match data:', match);
+    return (
+      <div className="flex items-center gap-3 p-3 border rounded bg-red-50">
+        <div className="text-red-600">Error: Invalid match data</div>
+      </div>
+    );
+  }
+  
   const confidenceColor = 
-    match.confidence >= 0.8 ? 'text-green-600' : 
-    match.confidence >= 0.6 ? 'text-yellow-600' : 
+    match.confidence >= 80 ? 'text-green-600' : 
+    match.confidence >= 60 ? 'text-yellow-600' : 
     'text-orange-600';
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -51,8 +61,8 @@ function MatchItem({ match, index, isSelected, onToggle }: MatchItemProps) {
         {match.discogsMatch ? (
           <div className="text-sm text-gray-600">
             → {match.discogsMatch.title} 
-            <span className={`ml-2 ${confidenceColor}`} aria-label={`${Math.round(match.confidence * 100)}% confidence match`}>
-              ({Math.round(match.confidence * 100)}% match)
+            <span className={`ml-2 ${confidenceColor}`} aria-label={`${Math.round(match.confidence)}% confidence match`}>
+              ({Math.round(match.confidence)}% match)
             </span>
           </div>
         ) : (
