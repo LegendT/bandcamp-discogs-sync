@@ -1,21 +1,15 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import pThrottle from 'p-throttle';
 import { logger } from '@/lib/utils/logger';
 import { DiscogsRelease, DiscogsSearchResult } from '@/types/discogs';
 import { DiscogsSearchQuery } from '@/types/matching';
+import { getDiscogsRateLimiter } from './rate-limiter';
 
 const DISCOGS_BASE_URL = 'https://api.discogs.com';
-
-// Conservative rate limit: 50 requests per minute (Discogs allows 60)
-const throttle = pThrottle({
-  limit: 50,
-  interval: 60 * 1000 // 1 minute
-});
 
 export class DiscogsClient {
   private token: string;
   private client: AxiosInstance;
-  private throttledRequest: <T = any>(fn: () => Promise<T>) => Promise<T>;
+  private rateLimiter = getDiscogsRateLimiter();
 
   constructor() {
     this.token = process.env.DISCOGS_USER_TOKEN || '';
@@ -32,13 +26,10 @@ export class DiscogsClient {
       },
       timeout: 10000 // 10 second timeout
     });
-
-    // Create throttled request function for all API calls
-    this.throttledRequest = throttle(async (fn) => fn());
   }
 
   async testConnection() {
-    return this.throttledRequest(async () => {
+    return this.rateLimiter.execute(async () => {
       try {
         // Test with identity endpoint (always available)
         const response = await this.client.get('/oauth/identity');
@@ -57,7 +48,7 @@ export class DiscogsClient {
           error: errorMessage
         };
       }
-    });
+    }, 'testConnection');
   }
 
   /**
@@ -66,7 +57,7 @@ export class DiscogsClient {
    * @returns Array of matching releases (first page only for MVP)
    */
   async searchReleases(query: DiscogsSearchQuery): Promise<DiscogsRelease[]> {
-    return this.throttledRequest(async () => {
+    return this.rateLimiter.execute(async () => {
       try {
         const params: Record<string, any> = {
           type: 'release',
@@ -113,6 +104,6 @@ export class DiscogsClient {
           throw error;
         }
       }
-    });
+    }, `searchReleases: ${query.artist} - ${query.title}`);
   }
 }
