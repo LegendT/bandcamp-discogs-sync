@@ -1,6 +1,19 @@
 # BC→DC Sync
 
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/LegendT/bandcamp-discogs-sync/releases/tag/v0.1.0)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](package.json)
+
 Automatically sync your Bandcamp purchases to your Discogs collection with 92%+ accuracy.
+
+## 📦 Latest Release
+
+**Version 0.1.0** - MVP Release (August 26, 2025)
+- ✨ Automatic Bandcamp collection import via username
+- 🎯 92%+ accuracy album matching
+- 📊 Full pagination support (loads entire collections)
+- 🔄 Batch processing with progress tracking
+- 📖 [View full release notes](RELEASE.md)
 
 ## 🚀 Quick Start
 

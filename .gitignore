@@ -45,3 +45,11 @@ dev.log
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Development test scripts
+scripts/development/test-*.js
+scripts/development/test-*.mjs
+
+# IDE
+.idea/
+.vscode/settings.json
