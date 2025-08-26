@@ -13,25 +13,25 @@ interface DataImportProps {
 }
 
 export default function DataImport({ onImportComplete, onError }: DataImportProps) {
-  const [importMethod, setImportMethod] = useState<'none' | 'scrape' | 'csv'>('none');
+  const [importMethod, setImportMethod] = useState<'none' | 'auto' | 'csv'>('none');
   const [isLoading, setIsLoading] = useState(false);
   
-  // Scraping state
+  // Auto-import state
   const [username, setUsername] = useState('');
   const [formatPreference, setFormatPreference] = useState<string>('Digital');
-  const [scrapeProgress, setScrapeProgress] = useState<string>('');
+  const [importProgress, setImportProgress] = useState<string>('');
 
-  const handleScrape = async () => {
+  const handleAutoImport = async () => {
     if (!username.trim()) {
       onError('Please enter a Bandcamp username');
       return;
     }
 
     setIsLoading(true);
-    setScrapeProgress('Connecting to Bandcamp...');
+    setImportProgress('Connecting to Bandcamp...');
 
     try {
-      const response = await fetch('/api/scrape', {
+      const response = await fetch('/api/import-collection', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -50,15 +50,15 @@ export default function DataImport({ onImportComplete, onError }: DataImportProp
         } else if (response.status === 404) {
           throw new Error(`Username "${username}" not found on Bandcamp`);
         }
-        throw new Error(error.message || 'Scraping failed');
+        throw new Error(error.message || 'Import failed');
       }
 
       const data = await response.json();
       
-      setScrapeProgress(`Found ${data.itemCount} items!`);
+      setImportProgress(`Found ${data.itemCount} items!`);
       
       // Generate a session ID for consistency with CSV upload
-      const sessionId = `scrape-${Date.now()}`;
+      const sessionId = `import-${Date.now()}`;
       
       onImportComplete({
         sessionId,
@@ -67,8 +67,8 @@ export default function DataImport({ onImportComplete, onError }: DataImportProp
       });
       
     } catch (error) {
-      onError(error instanceof Error ? error.message : 'Failed to scrape collection');
-      setScrapeProgress('');
+      onError(error instanceof Error ? error.message : 'Failed to import collection');
+      setImportProgress('');
     } finally {
       setIsLoading(false);
     }
@@ -83,9 +83,9 @@ export default function DataImport({ onImportComplete, onError }: DataImportProp
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
-          {/* Scraping Option - NEW AND RECOMMENDED */}
+          {/* Automatic Import Option - RECOMMENDED */}
           <button
-            onClick={() => setImportMethod('scrape')}
+            onClick={() => setImportMethod('auto')}
             className="p-6 border-2 border-green-200 rounded-lg hover:border-green-400 hover:bg-green-50 transition-all text-left relative"
           >
             <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
@@ -132,7 +132,7 @@ export default function DataImport({ onImportComplete, onError }: DataImportProp
     );
   }
 
-  if (importMethod === 'scrape') {
+  if (importMethod === 'auto') {
     return (
       <div className="w-full max-w-2xl mx-auto">
         <button
@@ -188,15 +188,15 @@ export default function DataImport({ onImportComplete, onError }: DataImportProp
             </div>
 
             {/* Progress Message */}
-            {scrapeProgress && (
+            {importProgress && (
               <div className="bg-blue-50 border border-blue-200 rounded p-3">
-                <p className="text-sm text-blue-700">{scrapeProgress}</p>
+                <p className="text-sm text-blue-700">{importProgress}</p>
               </div>
             )}
 
             {/* Import Button */}
             <button
-              onClick={handleScrape}
+              onClick={handleAutoImport}
               disabled={isLoading || !username.trim()}
               className={`
                 w-full py-3 px-4 rounded-md font-medium transition-colors

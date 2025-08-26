@@ -1,5 +1,5 @@
 /**
- * Simple Bandcamp scraper that works with public HTML pages
+ * Simple Bandcamp importer that works with public HTML pages
  * Fallback when bandcamp-fetch library fails
  */
 
@@ -13,12 +13,12 @@ export interface SimpleCollectionItem {
   format?: 'Digital' | 'Vinyl' | 'CD' | 'Cassette';
 }
 
-export class SimpleBandcampScraper {
+export class SimpleBandcampImporter {
   /**
-   * Scrape collection from public Bandcamp page with pagination support
+   * Fetch collection from public Bandcamp page with pagination support
    */
-  async scrapeCollection(username: string, formatHint?: string): Promise<SimpleCollectionItem[]> {
-    logger.info(`Simple scraper: Fetching collection for ${username}`);
+  async fetchCollection(username: string, formatHint?: string): Promise<SimpleCollectionItem[]> {
+    logger.info(`Simple importer: Fetching collection for ${username}`);
     
     try {
       // Fetch the public collection page
@@ -36,7 +36,7 @@ export class SimpleBandcampScraper {
       
       // If we have all items already, return them
       if (initialItems.length >= totalCount || !fanId || !lastToken) {
-        logger.info(`Simple scraper: Found all ${initialItems.length} items from initial page`);
+        logger.info(`Simple importer: Found all ${initialItems.length} items from initial page`);
         
         // Apply format hint if provided
         if (formatHint) {
@@ -49,7 +49,7 @@ export class SimpleBandcampScraper {
       }
       
       // Load additional items via pagination
-      logger.info(`Simple scraper: Loading additional items (${initialItems.length}/${totalCount})`);
+      logger.info(`Simple importer: Loading additional items (${initialItems.length}/${totalCount}`);
       const allItems = [...initialItems];
       let currentToken = lastToken;
       
@@ -63,11 +63,11 @@ export class SimpleBandcampScraper {
         allItems.push(...moreItems.items);
         currentToken = moreItems.lastToken;
         
-        logger.info(`Simple scraper: Loaded ${allItems.length}/${totalCount} items`);
+        logger.info(`Simple importer: Loaded ${allItems.length}/${totalCount} items`);
         
         // Safety limit to prevent infinite loops
         if (allItems.length > 5000) {
-          logger.warn('Simple scraper: Reached safety limit of 5000 items');
+          logger.warn('Simple importer: Reached safety limit of 5000 items');
           break;
         }
       }
@@ -79,12 +79,12 @@ export class SimpleBandcampScraper {
         });
       }
       
-      logger.info(`Simple scraper: Found ${allItems.length} items total`);
+      logger.info(`Simple importer: Found ${allItems.length} items total`);
       
       return allItems;
     } catch (error) {
-      logger.error('Simple scraper failed:', error);
-      throw new Error(`Failed to scrape collection: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      logger.error('Simple importer failed:', error);
+      throw new Error(`Failed to fetch collection: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
   
@@ -313,7 +313,7 @@ export class SimpleBandcampScraper {
 /**
  * Simple helper function
  */
-export async function simpleScrapeCollection(username: string, formatHint?: string): Promise<SimpleCollectionItem[]> {
-  const scraper = new SimpleBandcampScraper();
-  return scraper.scrapeCollection(username, formatHint);
+export async function simpleImportCollection(username: string, formatHint?: string): Promise<SimpleCollectionItem[]> {
+  const importer = new SimpleBandcampImporter();
+  return importer.fetchCollection(username, formatHint);
 }

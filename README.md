@@ -39,9 +39,9 @@ app/                 # Next.js App Router pages
 └── components/     # React components
 
 lib/                 # Core business logic
-├── bandcamp/       # Web scraping and CSV parsing
-│   ├── scraper.ts  # Bandcamp collection scraper
-│   └── simple-scraper.ts # Fallback scraper with pagination
+├── bandcamp/       # Collection import and CSV parsing
+│   ├── collector.ts  # Bandcamp collection collector
+│   └── simple-importer.ts # Fallback importer with pagination
 ├── discogs/        # Discogs API client
 ├── matching/       # 🎯 Album matching engine (92% accuracy)
 │   ├── engine.ts   # Core matching algorithm
@@ -162,9 +162,9 @@ Note: Development routes are only available when NODE_ENV is not 'production'.
 ## ✅ Current Features (MVP - Story 04 Complete)
 
 - ✅ **Bandcamp collection import** with two methods:
-  - **Web scraping**: Automatic import via username (NEW)
+  - **Automatic import**: Via username (NEW)
     - Full pagination support (loads all items, not just first 20)
-    - Fallback scraper when main library fails
+    - Fallback importer when main library fails
     - No authentication required - uses public data
   - **CSV parsing**: Manual upload with duplicate detection
 - ✅ **Discogs API integration** with enhanced rate limiting
@@ -190,12 +190,12 @@ Note: Development routes are only available when NODE_ENV is not 'production'.
   - CORS and security headers (CSP, HSTS)
   - Request size limits and rate limiting
 - ✅ **API endpoints**
-  - `/api/scrape` - Bandcamp collection scraping (NEW)
+  - `/api/import-collection` - Bandcamp collection import (NEW)
   - `/api/match` - Album matching with validation
   - `/api/upload` - CSV upload with sanitization
   - `/api/sync` - Add matches to Discogs collection
 - ✅ **Web UI for sync workflow**
-  - Dual import methods: automatic scraping or CSV upload
+  - Dual import methods: automatic import or CSV upload
   - Secure token input (no env files needed)
   - Test connection to verify Discogs access
   - Drag-and-drop CSV upload or username-based import

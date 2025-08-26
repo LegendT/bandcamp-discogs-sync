@@ -1,6 +1,6 @@
 /**
- * Bandcamp Collection Scraper
- * Uses bandcamp-fetch library to scrape public fan collections
+ * Bandcamp Collection Collector
+ * Uses bandcamp-fetch library to fetch public fan collections
  * No authentication required - only public data
  */
 
@@ -17,24 +17,24 @@ export interface BandcampCollectionItem {
   purchaseDate?: string;
 }
 
-export interface ScraperOptions {
+export interface CollectorOptions {
   username: string;
   limit?: number;
   onProgress?: (current: number, total: number) => void;
 }
 
-export class BandcampScraper {
+export class BandcampCollector {
   private abortController?: AbortController;
 
   /**
-   * Scrape a public Bandcamp fan collection
-   * @param options Scraper configuration
+   * Fetch a public Bandcamp fan collection
+   * @param options Collector configuration
    * @returns Collection items
    */
-  async scrapeCollection(options: ScraperOptions): Promise<BandcampCollectionItem[]> {
+  async fetchCollection(options: CollectorOptions): Promise<BandcampCollectionItem[]> {
     const { username, limit = 5000, onProgress } = options;
     
-    logger.info(`Starting Bandcamp collection scrape for user: ${username}`);
+    logger.info(`Starting Bandcamp collection import for user: ${username}`);
     
     try {
       // Initialize abort controller for cancellation
@@ -83,41 +83,41 @@ export class BandcampScraper {
         };
       });
       
-      logger.info(`Successfully scraped ${items.length} collection items`);
+      logger.info(`Successfully imported ${items.length} collection items`);
       
       return items;
       
     } catch (error) {
       // Check if it's a cancellation
       if (this.abortController?.signal.aborted) {
-        logger.info('Scraping cancelled by user');
+        logger.info('Import cancelled by user');
         return [];
       }
       
-      logger.error('Scraping failed:', error);
+      logger.error('Import failed:', error);
       
       // Provide user-friendly error messages
       if (error instanceof Error) {
         if (error.message.includes('not found')) {
           throw new Error(`Username "${username}" not found on Bandcamp`);
         } else if (error.message.includes('rate')) {
-          throw new Error('Rate limited by Bandcamp. Please try again in a few minutes.');
+          throw new Error('Rate limited. Please try again in a few minutes.');
         } else if (error.message.includes('timeout')) {
           throw new Error('Request timed out. The collection might be too large.');
         }
       }
       
-      throw new Error(`Failed to scrape collection: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(`Failed to import collection: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
   
   /**
-   * Cancel ongoing scraping operation
+   * Cancel ongoing import operation
    */
   cancel(): void {
     if (this.abortController) {
       this.abortController.abort();
-      logger.info('Scraping operation cancelled');
+      logger.info('Import operation cancelled');
     }
   }
   
@@ -146,7 +146,7 @@ export class BandcampScraper {
       // Method 3: Check if the URL exists (simplified check)
       // For now, we'll assume the user exists if the previous methods failed
       // This allows us to proceed with the scraping attempt
-      logger.warn(`Could not verify username ${username}, but will attempt scraping anyway`);
+      logger.warn(`Could not verify username ${username}, but will attempt import anyway`);
       return true; // Allow the attempt to proceed
     } catch {
       return false;
@@ -157,12 +157,12 @@ export class BandcampScraper {
 /**
  * Quick helper function for simple use cases
  */
-export async function scrapeBandcampCollection(
+export async function fetchBandcampCollection(
   username: string, 
   formatHint?: BandcampCollectionItem['format']
 ): Promise<BandcampCollectionItem[]> {
-  const scraper = new BandcampScraper();
-  const items = await scraper.scrapeCollection({ username });
+  const collector = new BandcampCollector();
+  const items = await collector.fetchCollection({ username });
   
   // Apply format hint if provided
   if (formatHint) {

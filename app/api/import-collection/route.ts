@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { BandcampScraper } from '@/lib/bandcamp/scraper';
-import { SimpleBandcampScraper } from '@/lib/bandcamp/simple-scraper';
+import { BandcampCollector } from '@/lib/bandcamp/collector';
+import { SimpleBandcampImporter } from '@/lib/bandcamp/simple-importer';
 import { logger } from '@/lib/utils/logger';
 // Request schema
-const scrapeRequestSchema = z.object({
+const importRequestSchema = z.object({
   username: z.string().min(1).max(100),
   formatHint: z.enum(['Digital', 'Vinyl', 'CD', 'Cassette']).optional(),
   limit: z.number().min(1).max(5000).optional()
@@ -21,15 +21,15 @@ async function handler(req: NextRequest) {
   try {
     // Parse and validate request
     const body = await req.json();
-    const { username, formatHint, limit } = scrapeRequestSchema.parse(body);
+    const { username, formatHint, limit } = importRequestSchema.parse(body);
     
-    logger.info(`Scrape request for Bandcamp user: ${username}`);
+    logger.info(`Import request for Bandcamp user: ${username}`);
     
-    // Create scraper instance
-    const scraper = new BandcampScraper();
+    // Create collector instance
+    const collector = new BandcampCollector();
     
     // Test if username exists first
-    const userExists = await scraper.testUsername(username);
+    const userExists = await collector.testUsername(username);
     
     if (!userExists) {
       return NextResponse.json(
@@ -41,24 +41,24 @@ async function handler(req: NextRequest) {
       );
     }
     
-    // Try to scrape collection with bandcamp-fetch first
+    // Try to import collection with bandcamp-fetch first
     let items: any[] = [];
     
     try {
-      items = await scraper.scrapeCollection({
+      items = await collector.fetchCollection({
         username,
         limit: limit || 1000,
         onProgress: (current, total) => {
           if (current % 10 === 0) {
-            logger.info(`Scraping progress: ${current}/${total}`);
+            logger.info(`Import progress: ${current}/${total}`);
           }
         }
       });
     } catch (bcfetchError) {
-      // If bandcamp-fetch fails, try simple scraper
-      logger.warn('bandcamp-fetch failed, trying simple scraper');
-      const simpleScraper = new SimpleBandcampScraper();
-      items = await simpleScraper.scrapeCollection(username, formatHint);
+      // If bandcamp-fetch fails, try simple importer
+      logger.warn('bandcamp-fetch failed, trying simple importer');
+      const simpleImporter = new SimpleBandcampImporter();
+      items = await simpleImporter.fetchCollection(username, formatHint);
     }
     
     // Apply format hint if provided
@@ -68,7 +68,7 @@ async function handler(req: NextRequest) {
       });
     }
     
-    logger.info(`Successfully scraped ${items.length} items for ${username}`);
+    logger.info(`Successfully imported ${items.length} items for ${username}`);
     
     // Transform to match our BandcampPurchase interface
     const purchases = items.map(item => ({
@@ -90,11 +90,11 @@ async function handler(req: NextRequest) {
       username,
       itemCount: items.length,
       purchases,
-      message: `Successfully scraped ${items.length} items from ${username}'s collection`
+      message: `Successfully imported ${items.length} items from ${username}'s collection`
     });
     
   } catch (error) {
-    logger.error('Scrape failed:', error);
+    logger.error('Import failed:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -129,7 +129,7 @@ async function handler(req: NextRequest) {
     
     return NextResponse.json(
       { 
-        error: 'Scraping failed',
+        error: 'Import failed',
         message: error instanceof Error ? error.message : 'Unknown error occurred'
       },
       { status: 500 }
