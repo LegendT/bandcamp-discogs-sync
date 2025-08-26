@@ -92,10 +92,10 @@ npm test -- --coverage     # Check test coverage
 
 Following 14-day MVP sprint plan:
 - Days 1-3: Technical foundation ✅
-- Days 4-7: Core MVP features (in progress)
+- Days 4-7: Core MVP features ✅
   - Day 4-5: Story 04 - Sync Workflow UI ✅
-  - Day 6-7: Story 05 - Enhanced sync pipeline
-- Days 8-10: Beta user testing
+  - Day 6-7: Story 05 - Enhanced sync pipeline ✅
+- Days 8-10: Beta user testing (upcoming)
 - Days 11-14: Monetization and polish
 
 See `/docs/bc-dc-sync-action-plan.md` for detailed sprint plan.
@@ -106,7 +106,7 @@ See `/docs/bc-dc-sync-action-plan.md` for detailed sprint plan.
 - Discogs token via UI input (not env files)
 - User-controlled sync with checkbox selection
 - 20-item batch limit to respect rate limits
-- $5/month subscription model via Stripe (coming in Story 10)
+- £5/month subscription model via Stripe (coming in Story 10)
 - Privacy-first: no data persistence, no tracking
 - Target: 10 beta users, 1 paying customer by day 14
 
@@ -161,11 +161,20 @@ The sync workflow UI is now complete with:
 
 ## Current Working State
 
-✅ **Full end-to-end workflow operational:**
+✅ **Full end-to-end workflow operational with Story 05 enhancements:**
 1. Upload CSV → Parse purchases
 2. Search Discogs → Find matches with 97-100% accuracy
 3. User selection → Checkbox controls working
-4. Sync to Discogs → Successfully adds to collection
-5. Success feedback → Shows synced items
+4. **NEW: Batch sync** → Automatically processes collections >20 items in chunks
+5. **NEW: Progress tracking** → Visual progress bar and batch status
+6. Sync to Discogs → Successfully adds to collection with rate limit protection
+7. Success feedback → Shows synced items with detailed results
 
-The application has been thoroughly tested and is ready for beta users.
+**Story 05 Enhancements (Completed Day 6):**
+- Batch processing: Collections of any size handled automatically
+- Progress indicators: "Syncing batch X of Y..." with progress bar
+- Rate limiting: 500ms delay between batches prevents API throttling
+- Error resilience: Continues processing even if individual items fail
+- Result aggregation: Combined success/failure summary across all batches
+
+The application has been thoroughly tested and is ready for beta deployment.

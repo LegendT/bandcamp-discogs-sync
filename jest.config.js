@@ -5,7 +5,7 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/$1',
     '^p-throttle$': '<rootDir>/tests/__mocks__/p-throttle.js'
   },
-  testMatch: ['**/*.test.ts'],
+  testMatch: ['**/*.test.ts', '**/*.test.tsx'],
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {
       tsconfig: {
