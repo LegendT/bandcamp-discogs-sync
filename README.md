@@ -226,6 +226,18 @@ All critical gaps from Story 03 have been addressed:
 
 See [Story 03 Documentation](docs/stories/03-create-matching-engine.md#critical-fixes-implementation) for implementation details.
 
+## ⚠️ Known Limitations (MVP)
+
+These are known limitations of the MVP version that will be addressed in future updates:
+
+1. **Sync cannot be cancelled once started** - Refresh the page to abandon an in-progress sync
+2. **Large syncs continue in background** - If you navigate away, the sync continues processing
+3. **Progress shows batch boundaries** - Updates every 20 items, not individual items
+4. **No retry for failed items** - Failed items must be manually re-selected for another attempt
+5. **Fixed 20-item batch size** - Not configurable, optimized for Discogs rate limits
+
+These limitations are acceptable for MVP validation and will be improved based on user feedback.
+
 ## 🤝 Contributing
 
 1. Read [CLAUDE.md](CLAUDE.md) for project conventions

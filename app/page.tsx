@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import FileUpload from './components/FileUpload';
 import ConfirmDialog from './components/ConfirmDialog';
 import MatchListSkeleton from './components/MatchListSkeleton';
@@ -64,6 +64,22 @@ export default function Home() {
     resetWorkflow();
     resetSync();
   };
+
+  // Warn user before leaving page during sync
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isSyncing) {
+        e.preventDefault();
+        e.returnValue = 'Sync in progress. Are you sure you want to leave?';
+        return 'Sync in progress. Are you sure you want to leave?';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isSyncing]);
 
   return (
     <div className="min-h-screen bg-gray-50">
