@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/utils/logger';
-import { rateLimit } from './rate-limit';
+import { rateLimit } from '@/lib/api/rate-limit';
 import { randomUUID } from 'crypto';
 
 // Security headers
