@@ -26,6 +26,10 @@ Automatically sync your Bandcamp purchases to your Discogs collection with 92%+ 
    - Click "Generate new token"
    - Copy the token and paste it in the app's UI
 
+5. **Import your Bandcamp collection:**
+   - **Option 1 (Recommended)**: Enter your Bandcamp username for automatic import
+   - **Option 2**: Upload a CSV file if you have one
+
 ## 📁 Project Structure
 
 ```
@@ -35,7 +39,9 @@ app/                 # Next.js App Router pages
 └── components/     # React components
 
 lib/                 # Core business logic
-├── bandcamp/       # CSV parsing and data extraction
+├── bandcamp/       # Collection import and CSV parsing
+│   ├── collector.ts  # Bandcamp collection collector
+│   └── simple-importer.ts # Fallback importer with pagination
 ├── discogs/        # Discogs API client
 ├── matching/       # 🎯 Album matching engine (92% accuracy)
 │   ├── engine.ts   # Core matching algorithm
@@ -155,7 +161,12 @@ Note: Development routes are only available when NODE_ENV is not 'production'.
 
 ## ✅ Current Features (MVP - Story 04 Complete)
 
-- ✅ **Bandcamp CSV parsing** with duplicate detection
+- ✅ **Bandcamp collection import** with two methods:
+  - **Automatic import**: Via username (NEW)
+    - Full pagination support (loads all items, not just first 20)
+    - Fallback importer when main library fails
+    - No authentication required - uses public data
+  - **CSV parsing**: Manual upload with duplicate detection
 - ✅ **Discogs API integration** with enhanced rate limiting
   - Smart retry with exponential backoff and jitter
   - X-RateLimit header parsing for proactive throttling
@@ -179,13 +190,15 @@ Note: Development routes are only available when NODE_ENV is not 'production'.
   - CORS and security headers (CSP, HSTS)
   - Request size limits and rate limiting
 - ✅ **API endpoints**
+  - `/api/import-collection` - Bandcamp collection import (NEW)
   - `/api/match` - Album matching with validation
   - `/api/upload` - CSV upload with sanitization
   - `/api/sync` - Add matches to Discogs collection
 - ✅ **Web UI for sync workflow**
+  - Dual import methods: automatic import or CSV upload
   - Secure token input (no env files needed)
   - Test connection to verify Discogs access
-  - Drag-and-drop CSV upload
+  - Drag-and-drop CSV upload or username-based import
   - User-controlled match selection with checkboxes
   - Pre-selected high-confidence matches (80%+)
   - Batch size limit (20 items) to respect rate limits

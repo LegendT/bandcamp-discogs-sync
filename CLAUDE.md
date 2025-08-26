@@ -40,7 +40,7 @@ app/                 # Next.js App Router pages
   api/              # API routes
   components/       # React components
 lib/                # Business logic
-  bandcamp/         # CSV parsing, data extraction
+  bandcamp/         # Collection import, CSV parsing, data extraction
   discogs/          # API client, collection management
   matching/         # Album matching algorithm
     safe-engine.ts  # Production wrapper with circuit breaker
@@ -102,7 +102,9 @@ See `/docs/bc-dc-sync-action-plan.md` for detailed sprint plan.
 
 ## Important Context
 
-- CSV upload only for MVP (no Bandcamp scraping initially)
+- Dual import methods: Automatic import (recommended) or CSV upload
+- Bandcamp import uses public data (no auth required)
+- Full pagination support for large collections
 - Discogs token via UI input (not env files)
 - User-controlled sync with checkbox selection
 - 20-item batch limit to respect rate limits
@@ -130,9 +132,14 @@ See `/docs/bc-dc-sync-action-plan.md` for detailed sprint plan.
 - Timeout protection prevents hanging requests
 - Batch operations limited to 20 items for reliability
 
-## Completed Features (Story 04)
+## Completed Features (Story 04 Enhanced)
 
 The sync workflow UI is now complete with:
+- **Bandcamp Collection Import** (NEW):
+  - Automatic import via username
+  - Full pagination (loads all items, not just first 20)
+  - Fallback importer when libraries fail
+- Dual import methods (automatic or CSV)
 - Token input and validation in the UI
 - Test connection before operations  
 - User-controlled selection with checkboxes

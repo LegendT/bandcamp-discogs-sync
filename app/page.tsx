@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import FileUpload from './components/FileUpload';
+import DataImport from './components/DataImport';
 import ConfirmDialog from './components/ConfirmDialog';
 import MatchListSkeleton from './components/MatchListSkeleton';
 import TokenInput from './components/TokenInput';
@@ -36,7 +36,7 @@ export default function Home() {
     validateToken();
   };
 
-  const handleUploadComplete = async (data: {
+  const handleImportComplete = async (data: {
     sessionId: string;
     purchases: any[];
     itemCount: number;
@@ -106,15 +106,15 @@ export default function Home() {
         {/* Upload Section */}
         {tokenValid && !syncResults && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-            <h2 className="text-lg font-semibold mb-4">2. Upload Bandcamp CSV</h2>
-            <FileUpload 
-              onUploadComplete={handleUploadComplete}
+            <h2 className="text-lg font-semibold mb-4">2. Import Your Collection</h2>
+            <DataImport 
+              onImportComplete={handleImportComplete}
               onError={(err) => {
-                // Clear any existing match error when new upload error occurs
+                // Clear any existing match error when new import error occurs
                 if (matchError) {
                   resetWorkflow(); // This clears the match error
                 }
-                // The FileUpload component will handle displaying the new error
+                // The DataImport component will handle displaying the new error
               }}
             />
           </div>
