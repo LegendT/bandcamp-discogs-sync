@@ -1,5 +1,34 @@
 # Changelog
 
+## [Story 04 Enhanced - Bandcamp Scraping] - 2025-08-26
+
+### Added
+- **Bandcamp Web Scraping**: Automatic collection import via username
+  - `SimpleBandcampScraper` class with full pagination support
+  - Loads complete collections (tested with 52+ items)
+  - No authentication required - uses public collection data
+  - Fallback mechanism when bandcamp-fetch library fails
+- **Dual Import Methods**: Users can choose automatic scraping or CSV upload
+- **Enhanced DataImport Component**: 
+  - Recommended scraping method with clear UI
+  - Format preference selection for imports
+  - Progress feedback during scraping
+- **New API Endpoint**: `/api/scrape` for Bandcamp collection scraping
+  - Proper field mapping (album → itemTitle)
+  - Error handling with user-friendly messages
+  - Rate limiting protection
+
+### Fixed
+- Field mapping between scraper output and expected BandcampPurchase interface
+- Handling of missing album titles in Bandcamp data
+- API route export syntax for Next.js App Router
+
+### Technical Details
+- Implemented pagination using Bandcamp's collection API
+- Added fan_id extraction and token-based pagination
+- Safety limit of 5000 items to prevent infinite loops
+- Proper HTML entity decoding in pagedata parsing
+
 ## [Story 04 Complete] - 2025-08-25
 
 ### Added
