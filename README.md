@@ -190,25 +190,30 @@ Note: Development routes are only available when NODE_ENV is not 'production'.
   - Pre-selected high-confidence matches (80%+)
   - Batch size limit (20 items) to respect rate limits
   - Real-time sync progress and results
-- ✅ **Comprehensive test suite** (98 tests total)
+- ✅ **Comprehensive test suite** (104 tests total)
   - 58 tests for matching engine
   - 10 tests for safe engine
   - 30 tests for UI components and hooks
+  - 6 tests for sync pipeline
   - Jest configuration fixed for ES modules
 - ✅ **Development tools** and test routes
-- 🚧 **Full sync pipeline** (coming in Story 05)
+- ✅ **Enhanced sync pipeline** (Story 05 complete)
+  - Batch processing for collections >20 items
+  - Progress tracking with visual indicators
+  - Automatic chunking with rate limit protection
+  - Error recovery and partial sync results
 - 🚧 **User authentication** (coming in Story 09)
 
 ## 🚦 Project Status
 
-Currently in **Day 4-5** of 14-day MVP sprint:
+Currently in **Day 6-7** of 14-day MVP sprint:
 
 - ✅ Story 01: Development environment setup
 - ✅ Story 02: Data extraction layer (CSV parsing)
 - ✅ Story 03: Matching engine (92% accuracy + critical fixes)
 - ✅ Story 04: Sync workflow UI (complete with real sync functionality)
-- 🚧 Story 05: Enhanced sync pipeline (bulk operations, duplicate detection)
-- ⏳ Story 06: Deploy beta version
+- ✅ Story 05: Enhanced sync pipeline (batch processing, progress tracking)
+- 🚧 Story 06: Deploy beta version (next)
 
 ## ✅ Production-Ready Features
 
@@ -220,6 +225,18 @@ All critical gaps from Story 03 have been addressed:
 4. **⏳ Persistent cache** - Redis integration deferred to post-MVP
 
 See [Story 03 Documentation](docs/stories/03-create-matching-engine.md#critical-fixes-implementation) for implementation details.
+
+## ⚠️ Known Limitations (MVP)
+
+These are known limitations of the MVP version that will be addressed in future updates:
+
+1. **Sync cannot be cancelled once started** - Refresh the page to abandon an in-progress sync
+2. **Large syncs continue in background** - If you navigate away, the sync continues processing
+3. **Progress shows batch boundaries** - Updates every 20 items, not individual items
+4. **No retry for failed items** - Failed items must be manually re-selected for another attempt
+5. **Fixed 20-item batch size** - Not configurable, optimized for Discogs rate limits
+
+These limitations are acceptable for MVP validation and will be improved based on user feedback.
 
 ## 🤝 Contributing
 

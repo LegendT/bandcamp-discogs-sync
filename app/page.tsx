@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import FileUpload from './components/FileUpload';
 import ConfirmDialog from './components/ConfirmDialog';
 import MatchListSkeleton from './components/MatchListSkeleton';
@@ -27,7 +27,7 @@ export default function Home() {
     selectNone,
     resetWorkflow,
   } = useMatchWorkflow();
-  const { isSyncing, syncResults, error: syncError, syncToDiscogs, resetSync } = useSyncWorkflow();
+  const { isSyncing, syncResults, syncProgress, error: syncError, syncToDiscogs, resetSync } = useSyncWorkflow();
   
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const error = matchError || syncError;
@@ -64,6 +64,22 @@ export default function Home() {
     resetWorkflow();
     resetSync();
   };
+
+  // Warn user before leaving page during sync
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isSyncing) {
+        e.preventDefault();
+        e.returnValue = 'Sync in progress. Are you sure you want to leave?';
+        return 'Sync in progress. Are you sure you want to leave?';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isSyncing]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -178,9 +194,23 @@ export default function Home() {
               <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded" role="alert" aria-live="polite">
                 <p className="text-sm text-yellow-800">
                   <span className="sr-only">Warning:</span>
-                  <span aria-hidden="true">⚠️</span> Large batch detected. Only the first 20 items will be synced to avoid timeouts.
-                  Discogs rate limits require ~1 second between adds.
+                  <span aria-hidden="true">⚠️</span> Processing large batch in chunks of 20 items to respect rate limits.
                 </p>
+              </div>
+            )}
+
+            {/* Sync Progress Display */}
+            {isSyncing && syncProgress && syncProgress.totalBatches > 1 && (
+              <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded">
+                <p className="text-sm text-blue-800">
+                  Syncing items {syncProgress.current + 1}-{Math.min(syncProgress.current + 20, syncProgress.total)} of {syncProgress.total}...
+                </p>
+                <div className="mt-2 w-full bg-blue-200 rounded-full h-2">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${(syncProgress.current / syncProgress.total) * 100}%` }}
+                  />
+                </div>
               </div>
             )}
 
@@ -196,7 +226,7 @@ export default function Home() {
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                 )}
-                {isSyncing ? 'Syncing...' : `Sync ${Math.min(selectedMatches.size, 20)} Items`}
+                {isSyncing ? (syncProgress ? `Syncing batch ${syncProgress.currentBatch} of ${syncProgress.totalBatches}...` : 'Syncing...') : `Sync ${selectedMatches.size} Items`}
               </button>
               <button
                 onClick={handleReset}

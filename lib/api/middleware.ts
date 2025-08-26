@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/utils/logger';
-import { RateLimiter } from './rate-limiter';
+import { rateLimit } from './rate-limit';
 import { randomUUID } from 'crypto';
 
 // Security headers
@@ -100,44 +100,37 @@ export async function withRateLimit(
     keyGenerator?: (request: NextRequest) => string;
   } = {}
 ): Promise<NextResponse> {
-  const rateLimiter = new RateLimiter({
+  const rateLimiter = rateLimit({
     windowMs: options.windowMs || 60000, // 1 minute
-    maxRequests: options.maxRequests || 60 // 60 requests per minute
+    max: options.maxRequests || 60 // 60 requests per minute
   });
   
-  // Generate rate limit key
-  const key = options.keyGenerator ? 
-    options.keyGenerator(request) : 
-    getClientIp(request);
+  const rateLimitResult = await rateLimiter.check(request);
   
-  const rateLimitResult = await rateLimiter.check(key);
-  
-  if (!rateLimitResult.allowed) {
+  if (!rateLimitResult.success) {
+    const retryAfter = Math.ceil((options.windowMs || 60000) / 1000);
     logger.warn('Rate limit exceeded', {
-      key,
-      limit: rateLimitResult.limit,
+      limit: options.maxRequests || 60,
       window: options.windowMs
     });
     
     return NextResponse.json({
       error: 'Too many requests',
-      retryAfter: rateLimitResult.retryAfter
+      retryAfter
     }, {
       status: 429,
       headers: {
-        'Retry-After': String(rateLimitResult.retryAfter),
-        'X-RateLimit-Limit': String(rateLimitResult.limit),
-        'X-RateLimit-Remaining': String(rateLimitResult.remaining),
-        'X-RateLimit-Reset': new Date(rateLimitResult.reset).toISOString()
+        'Retry-After': String(retryAfter),
+        'X-RateLimit-Limit': String(options.maxRequests || 60),
+        'X-RateLimit-Remaining': String(rateLimitResult.remaining)
       }
     });
   }
   
   // Add rate limit headers to response
   const response = await handler(request);
-  response.headers.set('X-RateLimit-Limit', String(rateLimitResult.limit));
+  response.headers.set('X-RateLimit-Limit', String(options.maxRequests || 60));
   response.headers.set('X-RateLimit-Remaining', String(rateLimitResult.remaining));
-  response.headers.set('X-RateLimit-Reset', new Date(rateLimitResult.reset).toISOString());
   
   return response;
 }
